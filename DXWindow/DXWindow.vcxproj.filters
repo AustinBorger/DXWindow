@@ -3,8 +3,12 @@
   <ItemGroup>
     <ClInclude Include="DXWindow.h" />
     <ClInclude Include="WindowMessageDispatcher.h" />
+    <ClInclude Include="GamepadMessageDispatcher.h" />
+    <ClInclude Include="CDXWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WindowMessageDispatcher.cpp" />
+    <ClCompile Include="GamepadMessageDispatcher.cpp" />
+    <ClCompile Include="DXWindow.cpp" />
   </ItemGroup>
 </Project>

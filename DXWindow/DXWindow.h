@@ -1,2 +1,70 @@
 #pragma once
 
+#include <Windows.h>
+#include <comdef.h>
+
+enum DXWINDOW_STATE {
+	DXWINDOW_STATE_FULLSCREEN = 1,
+	DXWINDOW_STATE_FULLSCREEN_WINDOW,
+	DXWINDOW_STATE_WINDOWED,
+	DXWINDOW_STATE_BORDERLESS,
+	DXWINDOW_STATE_MAXIMIZED
+};
+
+enum DXWINDOW_FULLSCREEN_STATE {
+	DXWINDOW_FULLSCREEN_STATE_FULLSCREEN = DXWINDOW_STATE_FULLSCREEN,
+	DXWINDOW_FULLSCREEN_STATE_FULLSCREEN_WINDOW = DXWINDOW_STATE_FULLSCREEN_WINDOW
+};
+
+enum DXWINDOW_WINDOW_STATE {
+	DXWINDOW_WINDOW_STATE_WINDOWED = DXWINDOW_STATE_WINDOWED,
+	DXWINDOW_WINDOW_STATE_BORDERLESS = DXWINDOW_STATE_BORDERLESS,
+	DXWINDOW_WINDOW_STATE_MAXIMIZED = DXWINDOW_STATE_MAXIMIZED
+};
+
+struct DXWINDOW_DESC {
+	LPCWSTR IconSmall;
+	LPCWSTR IconLarge;
+	LPCWSTR Cursor;
+	LPCWSTR Title;
+	HINSTANCE Instance;
+	DXWINDOW_FULLSCREEN_STATE FullscreenState;
+	DXWINDOW_WINDOW_STATE WindowState;
+	WORD Width;
+	WORD Height;
+	BOOL InitFullscreen;
+	BOOL AllowToggle;
+};
+
+struct __declspec(uuid("af69111a-a1f8-4cd1-afd3-94abdcfb011c")) IDXWindowCallback : public IUnknown {
+	virtual VOID OnObjectFailure(HRESULT hr) PURE;
+};
+
+struct __declspec(uuid("20203c63-f6f4-47ea-93cd-2784f02ecd61")) IDXWindow : public IUnknown {
+	virtual VOID STDMETHODCALLTYPE PumpMessages() PURE;
+
+	virtual VOID STDMETHODCALLTYPE Present(UINT SyncInterval, UINT Flags) PURE;
+
+	virtual WORD STDMETHODCALLTYPE GetWidth() PURE;
+
+	virtual WORD STDMETHODCALLTYPE GetHeight() PURE;
+
+	virtual VOID STDMETHODCALLTYPE SetResolution(WORD Width, WORD Height) PURE;
+
+	virtual DXWINDOW_STATE STDMETHODCALLTYPE GetState() PURE;
+
+	virtual VOID STDMETHODCALLTYPE SetState(DXWINDOW_STATE State) PURE;
+};
+
+#ifdef _DXWINDOW_DLL_PROJECT
+#define _DXWINDOW_EXPORT_TAG __declspec(dllexport)
+#else
+#define _DXWINDOW_EXPORT_TAG __declspec(dllimport)
+#endif
+
+extern "C" HRESULT _DXWINDOW_EXPORT_TAG DXWindowCreateWindow (
+	const DXWINDOW_DESC* pDesc,
+	IUnknown* pDevice,
+	IDXWindowCallback* pDXWindowCallback,
+	IDXWindow** ppDXWindow
+);

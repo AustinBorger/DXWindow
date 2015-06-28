@@ -1,4 +1,5 @@
 #include "WindowMessageDispatcher.h"
+#include "CDXWindow.h"
 
 #include <map>
 #include <mutex>
@@ -9,8 +10,9 @@ static std::map<HWND, WindowMessageDispatcher*> g_WindowMap;
 static std::mutex g_WindowMapMutex;
 
 //Zero out all data
-WindowMessageDispatcher::WindowMessageDispatcher() :
-m_Handle(NULL)
+WindowMessageDispatcher::WindowMessageDispatcher(CDXWindow& Window) :
+m_Handle(NULL),
+m_Window(Window)
 { }
 
 //If the handle and dispatcher object were mapped, remove the entry from the map
@@ -23,10 +25,12 @@ WindowMessageDispatcher::~WindowMessageDispatcher() {
 }
 
 //Add the handle-dispatcher relationship to the global window map
-HRESULT WindowMessageDispatcher::Initialize(HWND Handle) {
+HRESULT WindowMessageDispatcher::Initialize(HWND Handle, CComPtr<IDXWindowCallback> Callback) {
 	g_WindowMapMutex.lock();
 	g_WindowMap[Handle] = this;
 	g_WindowMapMutex.unlock();
+
+	m_Callback = Callback;
 
 	return S_OK;
 }
