@@ -65,6 +65,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DXWindow.h" />
+    <ClInclude Include="WindowMessageDispatcher.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="WindowMessageDispatcher.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
