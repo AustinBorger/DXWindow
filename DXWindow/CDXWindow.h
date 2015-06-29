@@ -3,6 +3,12 @@
 #include "DXWindow.h"
 #include <dxgi.h>
 
-class CDXWindow : public IDXWindow {
+#include "WindowMessageDispatcher.h"
 
+class CDXWindow : public IDXWindow {
+public:
+	LRESULT WindowProcess(UINT Message, WPARAM wParam, LPARAM lParam);
+
+private:
+	HWND m_Handle;
 };

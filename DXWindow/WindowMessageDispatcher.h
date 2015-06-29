@@ -19,13 +19,18 @@ public:
 	/* Also initializes the reference to the callback object. */
 	HRESULT Initialize(HWND Handle, CComPtr<IDXWindowCallback> Callback);
 
+	/* Static WndProc */
+	static LRESULT CALLBACK StaticWindowProcess(HWND Handle, UINT Message, WPARAM wParam, LPARAM lParam);
+
+	/* Used to determine if there was a change in the visibility of the window.
+	** If there was a change, let the callback know. */
+	void CheckWindowVisible();
+
 private:
 	CDXWindow& m_Window; //The window object
 	HWND m_Handle; //The window handle
 	CComPtr<IDXWindowCallback> m_Callback; //The callback object
-
-	/* Static WndProc */
-	static LRESULT CALLBACK StaticWindowProcess(HWND Handle, UINT Message, WPARAM wParam, LPARAM lParam);
+	BOOL m_PrevWindowVisible; //Used to determine if there was a change in the visibility of the window
 
 	/* Non-static WndProc */
 	LRESULT WindowProcess(UINT Message, WPARAM wParam, LPARAM lParam);

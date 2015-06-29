@@ -100,21 +100,21 @@ struct __declspec(uuid("af69111a-a1f8-4cd1-afd3-94abdcfb011c")) IDXWindowCallbac
 	//Window state callbacks
 
 	/* Called when the window is no longer visible. */
-	virtual VOID STDMETHODCALLTYPE OnWindowHide() PURE;
+	virtual VOID STDMETHODCALLTYPE OnWindowHide(IDXWindow* pDXWindow) PURE;
 
 	/* Called when the window is becoming visible. */
-	virtual VOID STDMETHODCALLTYPE OnWindowShow() PURE;
+	virtual VOID STDMETHODCALLTYPE OnWindowShow(IDXWindow* pDXWindow) PURE;
 
 	/* Called when the window is closing. */
-	virtual VOID STDMETHODCALLTYPE OnWindowClose() PURE;
+	virtual VOID STDMETHODCALLTYPE OnWindowClose(IDXWindow* pDXWindow) PURE;
 
 	//Back buffer callbacks
 
 	/* Called when a new back buffer is being created. */
-	virtual VOID STDMETHODCALLTYPE OnBackBufferCreate() PURE;
+	virtual VOID STDMETHODCALLTYPE OnBackBufferCreate(IDXWindow* pDXWindow) PURE;
 
 	/* Called when the back buffer is being released on resize */
-	virtual VOID STDMETHODCALLTYPE OnBackBufferRelease() PURE;
+	virtual VOID STDMETHODCALLTYPE OnBackBufferRelease(IDXWindow* pDXWindow) PURE;
 };
 
 struct __declspec(uuid("20203c63-f6f4-47ea-93cd-2784f02ecd61")) IDXWindow : public IUnknown {

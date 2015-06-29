@@ -10,5 +10,6 @@
     <ClCompile Include="WindowMessageDispatcher.cpp" />
     <ClCompile Include="GamepadMessageDispatcher.cpp" />
     <ClCompile Include="DXWindow.cpp" />
+    <ClCompile Include="CDXWindow.cpp" />
   </ItemGroup>
 </Project>

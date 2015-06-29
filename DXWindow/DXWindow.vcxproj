@@ -76,6 +76,7 @@
     <ClInclude Include="WindowMessageDispatcher.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CDXWindow.cpp" />
     <ClCompile Include="DXWindow.cpp" />
     <ClCompile Include="GamepadMessageDispatcher.cpp" />
     <ClCompile Include="WindowMessageDispatcher.cpp" />
