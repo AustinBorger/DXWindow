@@ -36,9 +36,40 @@ struct DXWINDOW_DESC {
 	BOOL AllowToggle;
 };
 
+/* Used as a callback mechanism for window and gamepad messages.  Also used for error reporting. */
 struct __declspec(uuid("af69111a-a1f8-4cd1-afd3-94abdcfb011c")) IDXWindowCallback : public IUnknown {
+	//Error callbacks
+
 	/* Called when an error has occured anywhere within the API. */
 	virtual VOID STDMETHODCALLTYPE OnObjectFailure(HRESULT hr) PURE;
+
+	//Gamepad callbacks
+
+	/* Called when a button on the gamepad is pressed. */
+	virtual VOID STDMETHODCALLTYPE OnGamepadButtonDown(IDXWindow* pDXWindow, DWORD dwUserIndex, WORD wButton) PURE;
+
+	/* Called when a button on the gamepad is released. */
+	virtual VOID STDMETHODCALLTYPE OnGamepadButtonUp(IDXWindow* pDXWindow, DWORD dwUserIndex, WORD wButton) PURE;
+
+	/* Called when the left analog stick on the gamepad changes position. */
+	virtual VOID STDMETHODCALLTYPE OnGamepadLeftAnalogMove(IDXWindow* pDXWindow, DWORD dwUserIndex, SHORT xPos, SHORT yPos) PURE;
+
+	/* Called when the right analog stick on the gamepad changes position. */
+	virtual VOID STDMETHODCALLTYPE OnGamepadRightAnalogMove(IDXWindow* pDXWindow, DWORD dwUserIndex, SHORT xPos, SHORT yPos) PURE;
+
+	/* Called when the left trigger on the gamepad changes position. */
+	virtual VOID STDMETHODCALLTYPE OnGamepadLeftTriggerMove(IDXWindow* pDXWindow, DWORD dwUserIndex, BYTE Val) PURE;
+
+	/* Called when the right trigger on the gamepad changes position. */
+	virtual VOID STDMETHODCALLTYPE OnGamepadRightTriggerMove(IDXWindow* pDXWindow, DWORD dwUserIndex, BYTE Val) PURE;
+
+	//Keyboard callbacks
+
+	/* Called when a key on the keyboard is pressed. */
+	virtual VOID STDMETHODCALLTYPE OnKeyDown(IDXWindow* pDXWindow, WPARAM Key, LPARAM lParam) PURE;
+
+	/* Called when a key on the keyboard is released. */
+	virtual VOID STDMETHODCALLTYPE OnKeyUp(IDXWindow* pDXWindow, WPARAM Key, LPARAM lParam) PURE;
 
 	//Mouse callbacks
 
@@ -101,7 +132,7 @@ struct __declspec(uuid("20203c63-f6f4-47ea-93cd-2784f02ecd61")) IDXWindow : publ
 
 	virtual VOID STDMETHODCALLTYPE SetState(DXWINDOW_STATE State) PURE;
 
-	virtual VOID STDMETHODCALLTYPE GetBackBuffer(REFIID riid, void** ppvBackBuffer) PURE;
+	virtual VOID STDMETHODCALLTYPE GetBackBuffer(REFIID rIID, void** ppvBackBuffer) PURE;
 };
 
 #ifdef _DXWINDOW_DLL_PROJECT
