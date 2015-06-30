@@ -3,37 +3,41 @@
 #include <Windows.h>
 #include <comdef.h>
 
+/* Controls the way the window appears and behaves. */
 enum DXWINDOW_STATE {
-	DXWINDOW_STATE_FULLSCREEN = 1,
-	DXWINDOW_STATE_FULLSCREEN_WINDOW,
-	DXWINDOW_STATE_WINDOWED,
-	DXWINDOW_STATE_BORDERLESS,
-	DXWINDOW_STATE_MAXIMIZED
+	DXWINDOW_STATE_FULLSCREEN = 1, //Exclusive fullscreen
+	DXWINDOW_STATE_FULLSCREEN_WINDOW, //Non-exclusive fullscreen window
+	DXWINDOW_STATE_WINDOWED, //Movable window with border
+	DXWINDOW_STATE_BORDERLESS, //Non-movable window with no border
+	DXWINDOW_STATE_MAXIMIZED //Window that fills the work area of the monitor
 };
 
+/* DXWINDOW_STATE restricted to fullscreen modes. */
 enum DXWINDOW_FULLSCREEN_STATE {
 	DXWINDOW_FULLSCREEN_STATE_FULLSCREEN = DXWINDOW_STATE_FULLSCREEN,
 	DXWINDOW_FULLSCREEN_STATE_FULLSCREEN_WINDOW = DXWINDOW_STATE_FULLSCREEN_WINDOW
 };
 
+/* DXWINDOW_STATE restricted to windowed modes. */
 enum DXWINDOW_WINDOW_STATE {
 	DXWINDOW_WINDOW_STATE_WINDOWED = DXWINDOW_STATE_WINDOWED,
 	DXWINDOW_WINDOW_STATE_BORDERLESS = DXWINDOW_STATE_BORDERLESS,
 	DXWINDOW_WINDOW_STATE_MAXIMIZED = DXWINDOW_STATE_MAXIMIZED
 };
 
+/* Used when creating the window. */
 struct DXWINDOW_DESC {
-	LPCWSTR IconSmall;
-	LPCWSTR IconLarge;
-	LPCWSTR Cursor;
-	LPCWSTR Title;
-	HINSTANCE Instance;
-	DXWINDOW_FULLSCREEN_STATE FullscreenState;
-	DXWINDOW_WINDOW_STATE WindowState;
-	WORD Width;
-	WORD Height;
-	BOOL InitFullscreen;
-	BOOL AllowToggle;
+	LPCWSTR IconSmall; //The small window icon
+	LPCWSTR IconLarge; //The large window icon
+	LPCWSTR Cursor; //The cursor
+	LPCWSTR Title; //The title of the window
+	HINSTANCE Instance; //hInstance from process entry
+	DXWINDOW_FULLSCREEN_STATE FullscreenState; //The fullscreen type to use
+	DXWINDOW_WINDOW_STATE WindowState; //The window type to use
+	WORD Width; //The width of the window in windowed or borderless
+	WORD Height; //The height of the window in windowed or borderless
+	BOOL InitFullscreen; //Whether or not to immediately go to fullscreen
+	BOOL AllowToggle; //Whether or not to allow toggle between fullscreen and windowed via F11
 };
 
 /* Used as a callback mechanism for window and gamepad messages.  Also used for error reporting. */
@@ -117,21 +121,30 @@ struct __declspec(uuid("af69111a-a1f8-4cd1-afd3-94abdcfb011c")) IDXWindowCallbac
 	virtual VOID STDMETHODCALLTYPE OnBackBufferRelease(IDXWindow* pDXWindow) PURE;
 };
 
+/* The windowing interface. */
 struct __declspec(uuid("20203c63-f6f4-47ea-93cd-2784f02ecd61")) IDXWindow : public IUnknown {
+	/* Goes through every message in the queue and dispatches them to your callback. */
 	virtual VOID STDMETHODCALLTYPE PumpMessages() PURE;
 
+	/* Flips the back buffer.  See IDXGISwapChain::Present() for more info. */
 	virtual VOID STDMETHODCALLTYPE Present(UINT SyncInterval, UINT Flags) PURE;
 
-	virtual WORD STDMETHODCALLTYPE GetWidth() PURE;
+	/* Returns the windowed-mode width of the window. */
+	virtual WORD STDMETHODCALLTYPE GetWindowWidth() PURE;
 
-	virtual WORD STDMETHODCALLTYPE GetHeight() PURE;
+	/* Returns the windowed-mode height of the window. */
+	virtual WORD STDMETHODCALLTYPE GetWindowHeight() PURE;
 
-	virtual VOID STDMETHODCALLTYPE SetResolution(WORD Width, WORD Height) PURE;
+	/* Sets the windowed-mode resolution of the window. */
+	virtual VOID STDMETHODCALLTYPE SetWindowResolution(WORD Width, WORD Height) PURE;
 
+	/* Returns the state of the window. */
 	virtual DXWINDOW_STATE STDMETHODCALLTYPE GetState() PURE;
 
+	/* Sets the state of the window. */
 	virtual VOID STDMETHODCALLTYPE SetState(DXWINDOW_STATE State) PURE;
 
+	/* Retrieves the back buffer in the interface of your choosing. */
 	virtual VOID STDMETHODCALLTYPE GetBackBuffer(REFIID rIID, void** ppvBackBuffer) PURE;
 };
 
@@ -141,6 +154,7 @@ struct __declspec(uuid("20203c63-f6f4-47ea-93cd-2784f02ecd61")) IDXWindow : publ
 #define _DXWINDOW_EXPORT_TAG __declspec(dllimport)
 #endif
 
+/* Creates a window.  pDevice can be any D3D device version 11 or later. */
 extern "C" HRESULT _DXWINDOW_EXPORT_TAG DXWindowCreateWindow (
 	const DXWINDOW_DESC* pDesc,
 	IUnknown* pDevice,
