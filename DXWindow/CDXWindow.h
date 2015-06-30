@@ -11,4 +11,5 @@ public:
 
 private:
 	HWND m_Handle;
+	WindowMessageDispatcher m_WindowMessageDispatcher;
 };
