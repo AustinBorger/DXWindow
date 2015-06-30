@@ -37,6 +37,16 @@ HRESULT WindowMessageDispatcher::Initialize(HWND Handle, CComPtr<IDXWindowCallba
 	return S_OK;
 }
 
+//Handle all messages in the queue
+void WindowMessageDispatcher::RunMessagePump() {
+	MSG Message;
+
+	while (PeekMessageW(&Message, m_Handle, 0, 0, PM_REMOVE) > 0) {
+		TranslateMessage(&Message);
+		DispatchMessageW(&Message);
+	}
+}
+
 //Locate the dispatcher object and re-direct the call towards it
 LRESULT CALLBACK WindowMessageDispatcher::StaticWindowProcess(HWND Handle, UINT Message, WPARAM wParam, LPARAM lParam) {
 	g_WindowMapMutex.lock();
@@ -46,6 +56,8 @@ LRESULT CALLBACK WindowMessageDispatcher::StaticWindowProcess(HWND Handle, UINT 
 	return l_Dispatcher->WindowProcess(Message, wParam, lParam);
 }
 
+//Check to see if there was a change in window visibility.
+//Alert the application if there was.
 void WindowMessageDispatcher::CheckWindowVisible() {
 	BOOL l_IsWindowVisible = IsWindowVisible(m_Handle);
 
@@ -62,65 +74,63 @@ void WindowMessageDispatcher::CheckWindowVisible() {
 
 //React to messages by dispatching them to the application
 LRESULT WindowMessageDispatcher::WindowProcess(UINT Message, WPARAM wParam, LPARAM lParam) {
-	HRESULT hr = S_OK;
-
 	switch (Message) {
 		case WM_KEYDOWN: {
 			m_Callback->OnKeyDown(&m_Window, wParam, lParam);
-		} return 0;
+		} break;
 
 		case WM_KEYUP: {
 			m_Callback->OnKeyUp(&m_Window, wParam, lParam);
-		} return 0;
+		} break;
 
 		case WM_LBUTTONDOWN: {
 			WORD x = LOWORD(lParam);
 			WORD y = HIWORD(lParam);
 
 			m_Callback->OnMouseLButtonDown(&m_Window, wParam, x, y);
-		} return 0;
+		} break;
 
 		case WM_LBUTTONUP: {
 			WORD x = LOWORD(lParam);
 			WORD y = HIWORD(lParam);
 
 			m_Callback->OnMouseLButtonUp(&m_Window, wParam, x, y);
-		} return 0;
+		} break;
 
 		case WM_RBUTTONDOWN: {
 			WORD x = LOWORD(lParam);
 			WORD y = HIWORD(lParam);
 
 			m_Callback->OnMouseRButtonDown(&m_Window, wParam, x, y);
-		} return 0;
+		} break;
 
 		case WM_RBUTTONUP: {
 			WORD x = LOWORD(lParam);
 			WORD y = HIWORD(lParam);
 
 			m_Callback->OnMouseRButtonUp(&m_Window, wParam, x, y);
-		} return 0;
+		} break;
 
 		case WM_MBUTTONDOWN: {
 			WORD x = LOWORD(lParam);
 			WORD y = HIWORD(lParam);
 
 			m_Callback->OnMouseMButtonDown(&m_Window, wParam, x, y);
-		} return 0;
+		} break;
 
 		case WM_MBUTTONUP: {
 			WORD x = LOWORD(lParam);
 			WORD y = HIWORD(lParam);
 
 			m_Callback->OnMouseLButtonUp(&m_Window, wParam, x, y);
-		} return 0;
+		} break;
 
 		case WM_MOUSEMOVE: {
 			WORD x = LOWORD(lParam);
 			WORD y = HIWORD(lParam);
 
 			m_Callback->OnMouseMove(&m_Window, wParam, x, y);
-		} return 0;
+		} break;
 
 		case WM_MOUSEWHEEL: {
 			WORD x = LOWORD(lParam);
@@ -129,11 +139,11 @@ LRESULT WindowMessageDispatcher::WindowProcess(UINT Message, WPARAM wParam, LPAR
 			WORD flags = LOWORD(wParam);
 
 			m_Callback->OnMouseWheel(&m_Window, flags, delta, x, y);
-		} return 0;
+		} break;
 
 		case WM_CLOSE: {
 			m_Callback->OnWindowClose(&m_Window);
-		} return 0;
+		} break;
 	}
 
 	return m_Window.WindowProcess(Message, wParam, lParam);

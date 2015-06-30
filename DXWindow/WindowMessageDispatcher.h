@@ -19,6 +19,9 @@ public:
 	/* Also initializes the reference to the callback object. */
 	HRESULT Initialize(HWND Handle, CComPtr<IDXWindowCallback> Callback);
 
+	/* Runs the message pump by draining and addressing the message queue. */
+	void RunMessagePump();
+
 	/* Static WndProc */
 	static LRESULT CALLBACK StaticWindowProcess(HWND Handle, UINT Message, WPARAM wParam, LPARAM lParam);
 

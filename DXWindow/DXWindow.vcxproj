@@ -71,14 +71,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CDXWindow.h" />
+    <ClInclude Include="DXGIServer.h" />
     <ClInclude Include="DXWindow.h" />
     <ClInclude Include="GamepadMessageDispatcher.h" />
+    <ClInclude Include="Output.h" />
+    <ClInclude Include="QueryInterface.h" />
+    <ClInclude Include="SwapChainController.h" />
     <ClInclude Include="WindowMessageDispatcher.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CDXWindow.cpp" />
+    <ClCompile Include="DXGIServer.cpp" />
     <ClCompile Include="DXWindow.cpp" />
     <ClCompile Include="GamepadMessageDispatcher.cpp" />
+    <ClCompile Include="Output.cpp" />
+    <ClCompile Include="SwapChainController.cpp" />
     <ClCompile Include="WindowMessageDispatcher.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

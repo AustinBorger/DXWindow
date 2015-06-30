@@ -144,6 +144,12 @@ struct __declspec(uuid("20203c63-f6f4-47ea-93cd-2784f02ecd61")) IDXWindow : publ
 	/* Sets the state of the window. */
 	virtual VOID STDMETHODCALLTYPE SetState(DXWINDOW_STATE State) PURE;
 
+	/* Indicates whether or not the window can be toggled between fullscreen and windowed via F11. */
+	virtual BOOL STDMETHODCALLTYPE GetAllowToggle() PURE;
+
+	/* Controls whether or not the window can be toggle between fullscreen and windowed via F11. */
+	virtual VOID STDMETHODCALLTYPE SetAllowToggle(BOOL AllowToggle) PURE;
+
 	/* Retrieves the back buffer in the interface of your choosing. */
 	virtual VOID STDMETHODCALLTYPE GetBackBuffer(REFIID rIID, void** ppvBackBuffer) PURE;
 };
