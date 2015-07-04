@@ -7,8 +7,8 @@
     <ClInclude Include="CDXWindow.h" />
     <ClInclude Include="QueryInterface.h" />
     <ClInclude Include="SwapChainController.h" />
-    <ClInclude Include="DXGIServer.h" />
     <ClInclude Include="Output.h" />
+    <ClInclude Include="OutputWatcher.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WindowMessageDispatcher.cpp" />
@@ -16,7 +16,7 @@
     <ClCompile Include="DXWindow.cpp" />
     <ClCompile Include="CDXWindow.cpp" />
     <ClCompile Include="SwapChainController.cpp" />
-    <ClCompile Include="DXGIServer.cpp" />
     <ClCompile Include="Output.cpp" />
+    <ClCompile Include="OutputWatcher.cpp" />
   </ItemGroup>
 </Project>

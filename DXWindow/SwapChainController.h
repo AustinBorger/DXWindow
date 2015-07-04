@@ -6,6 +6,7 @@
 #include <dxgi.h>
 
 #include "DXWindow.h"
+#include "OutputWatcher.h"
 
 class CDXWindow;
 
@@ -13,29 +14,33 @@ class SwapChainController {
 public:
 	SwapChainController(CDXWindow& Window);
 
-	DXWINDOW_STATE GetState() {
-		return m_State;
-	}
-
-	HRESULT SetState(DXWINDOW_STATE State);
+	HRESULT Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback, HWND Handle);
 
 	HRESULT ToggleFullscreen();
 
+	HRESULT ResizeBuffers();
+
+	HRESULT GetDesktopArea(RECT& DesktopArea);
+
+	HRESULT Present(UINT SyncInterval, UINT Flags);
+
 private:
 	CDXWindow& m_Window;
+	CComPtr<IDXWindowCallback> m_Callback;
 	CComPtr<IDXGISwapChain> m_SwapChain;
-	DXWINDOW_STATE m_State;
-	DXWINDOW_FULLSCREEN_STATE m_FullscreenState;
-	DXWINDOW_WINDOW_STATE m_WindowState;
+	HWND m_Handle;
+	OutputWatcher m_OutputWatcher;
 
 	BOOL IsFullscreen() {
-		if (m_State == DXWINDOW_STATE_FULLSCREEN ||
-			m_State == DXWINDOW_STATE_FULLSCREEN_WINDOW) {
-			return TRUE;
-		}
+		BOOL Fullscreen;
 
-		return FALSE;
+		m_SwapChain->GetFullscreenState (
+			&Fullscreen,
+			nullptr
+		);
+
+		return Fullscreen;
 	}
 
-	HRESULT ResizeBuffers();
+	HRESULT CreateSwapChain(CComPtr<IUnknown> DeviceUnk);
 };

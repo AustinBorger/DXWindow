@@ -1,5 +1,20 @@
 #include "CDXWindow.h"
 
+static const DWORD WINDOWED_STYLE = WS_SYSMENU | WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_VISIBLE;
+static const DWORD WINDOWED_EX_STYLE = NULL;
+static const DWORD BORDERLESS_STYLE = WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE;
+static const DWORD BORDERLESS_EX_STYLE = WS_EX_APPWINDOW;
+static const DWORD FULLSCREEN_WINDOW_STYLE = WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE;
+static const DWORD FULLSCREEN_WINDOW_EX_STYLE = WS_EX_TOPMOST | WS_EX_APPWINDOW;
+
+#define CHECK_HR() if (FAILED(hr)) m_Callback->OnObjectFailure(hr)
+#define CHECK_BRESULT() if (bresult == FALSE) m_Callback->OnObjectFailure(HRESULT_FROM_WIN32(GetLastError()))
+
+HRESULT CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWindowCallback* pDXWindowCallback) {
+	CComPtr<IUnknown> DeviceUnk = pDevice;
+	m_Callback = pDXWindowCallback;
+}
+
 VOID CDXWindow::PumpMessages() {
 	m_WindowMessageDispatcher.CheckWindowVisible();
 
@@ -30,80 +45,115 @@ LRESULT CDXWindow::WindowProcess(UINT Message, WPARAM wParam, LPARAM lParam) {
 
 		case WM_KEYDOWN: {
 			if (wParam == VK_F11 && m_AllowToggle != FALSE) {
-				hr = m_SwapChainController.ToggleFullscreen(); CHECK_HR();
+				ToggleFullscreen();
 			}
 		} return 0;
 
 		case WM_SIZE: {
-			hr = ResizeBuffers(); CHECK_HR();
+			hr = m_SwapChainController.ResizeBuffers(); CHECK_HR();
 		} return S_OK;
 
 		case WM_KILLFOCUS: {
-			hr = KillFocus(); CHECK_HR();
+			KillFocus();
 		} return S_OK;
 
 		case WM_SETFOCUS: {
-			hr = SetFocus(); CHECK_HR();
+			SetFocus();
 		} return S_OK;
 	}
 
 	return DefWindowProcW(m_Handle, Message, wParam, lParam);
 }
 
-HRESULT CDXWindow::ToggleFullscreen() {
+VOID CDXWindow::UpdateWindowState() {
+	BOOL bresult = TRUE;
+	DWORD err = ERROR_SUCCESS;
 	HRESULT hr = S_OK;
 
-	if (m_Fullscreen == FALSE) {
-		RECT DesktopArea;
-
-		Output* output = m_DXWindowFactory.SearchOutput(m_Handle);
-
-		if (output == nullptr) {
-			return E_FAIL;
-		}
-
-		hr = output->GetDesktopArea (
-			&DesktopArea
-		); CHECK_HR();
-
-		if (m_FullscreenMode == DXWINDOW_FULLSCREEN_MODE_FULLSCREEN) {
-			DXGI_MODE_DESC mode; Zero(mode);
-			CComPtr<IDXGIOutput> obj = output->GetObj();
-
-			mode.Width = DesktopArea.right - DesktopArea.left;
-			mode.Height = DesktopArea.bottom - DesktopArea.top;
-
-			hr = m_SwapChain->ResizeTarget (
-				&mode
-			); CHECK_HR();
-
-			hr = m_SwapChain->SetFullscreenState (
-				TRUE,
-				obj
-			); CHECK_HR();
-
-			hr = ResizeBuffers(); CHECK_HR();
-
-			hr = CenterCursor(); CHECK_HR();
-		} else { //FULLSCREEN_MODE_FULLSCREEN_WINDOW
-			hr = FullscreenWindow (
-				DesktopArea
-			); CHECK_HR();
-
-			hr = CenterCursor(); CHECK_HR();
-		}
-	} else {
-		if (m_FullscreenMode == DXWINDOW_FULLSCREEN_MODE_FULLSCREEN) {
-			hr = m_SwapChain->SetFullscreenState (
-				FALSE,
-				nullptr
-			); CHECK_HR();
-		}
-
-		hr = UpdateWindowMode(); CHECK_HR();
+	if (m_WindowState == DXWINDOW_WINDOW_STATE_WINDOWED) {
+		m_WindowStyle = WINDOWED_STYLE;
+		m_WindowExStyle = WINDOWED_EX_STYLE;
+	} else if (m_WindowState == DXWINDOW_WINDOW_STATE_BORDERLESS) {
+		m_WindowStyle = BORDERLESS_STYLE;
+		m_WindowExStyle = BORDERLESS_EX_STYLE;
 	}
 
-	m_Fullscreen = TRUE - m_Fullscreen; //m_Fullscreen = !m_Fullscreen
+	SetLastError(0);
 
-	return S_OK;
+	bresult = SetWindowLongW (
+		m_Handle,
+		GWL_STYLE,
+		m_WindowStyle
+	); CHECK_BRESULT();
+
+	SetLastError(0);
+
+	bresult = SetWindowLongW (
+		m_Handle,
+		GWL_EXSTYLE,
+		m_WindowExStyle
+	); CHECK_BRESULT();
+
+	CenterWindow();
+
+	CenterCursor();
+}
+
+VOID CDXWindow::ToggleFullscreen() {
+	HRESULT hr = S_OK;
+
+	if (m_State == DXWINDOW_STATE_FULLSCREEN || m_State == DXWINDOW_STATE_FULLSCREEN_WINDOW) {
+		//I'm in fullscreen state now, switch to windowed
+		if (m_State == DXWINDOW_STATE_FULLSCREEN) {
+			hr = m_SwapChainController.ToggleFullscreen(); CHECK_HR();
+		}
+
+		UpdateWindowState();
+	} else {
+		//I'm in windowed state now, switch to fullscreen
+		if (m_FullscreenState == DXWINDOW_FULLSCREEN_STATE_FULLSCREEN) {
+			hr = m_SwapChainController.ToggleFullscreen(); CHECK_HR();
+		} else {
+			FullscreenWindow();
+		}
+
+		CenterCursor();
+	}
+}
+
+VOID CDXWindow::FullscreenWindow() {
+	HRESULT hr = S_OK;
+	BOOL bresult = TRUE;
+	RECT DesktopArea;
+
+	hr = m_SwapChainController.GetDesktopArea(DesktopArea); CHECK_HR();
+
+	m_WindowStyle = FULLSCREEN_WINDOW_STYLE;
+	m_WindowExStyle = FULLSCREEN_WINDOW_EX_STYLE;
+
+	SetLastError(0);
+
+	bresult = SetWindowLongW (
+		m_Handle,
+		GWL_STYLE,
+		m_WindowStyle
+	); CHECK_BRESULT();
+
+	bresult = SetWindowPos (
+		m_Handle,
+		NULL,
+		DesktopArea.left,
+		DesktopArea.top,
+		DesktopArea.right - DesktopArea.left,
+		DesktopArea.bottom - DesktopArea.top,
+		NULL
+	); CHECK_BRESULT();
+
+	SetLastError(0);
+
+	bresult = SetWindowLongW (
+		m_Handle,
+		GWL_EXSTYLE,
+		m_WindowExStyle
+	); CHECK_BRESULT();
 }

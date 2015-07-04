@@ -52,7 +52,7 @@ public:
 	VOID STDMETHODCALLTYPE SetWindowResolution(WORD Width, WORD Height) final;
 
 	DXWINDOW_STATE STDMETHODCALLTYPE GetState() final {
-		return m_SwapChainController.GetState();
+		return m_State;
 	}
 
 	VOID STDMETHODCALLTYPE SetState(DXWINDOW_STATE State) final;
@@ -73,7 +73,27 @@ public:
 
 	HRESULT Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWindowCallback* pDXWindowCallback);
 
+	VOID CenterWindow();
+
 	VOID CenterCursor();
+
+	VOID UpdateWindowState();
+
+	VOID KillFocus();
+
+	VOID SetFocus();
+
+	VOID ToggleFullscreen();
+
+	VOID FullscreenWindow();
+
+	DXWINDOW_FULLSCREEN_STATE GetFullscreenState() {
+		return m_FullscreenState;
+	}
+
+	DXWINDOW_WINDOW_STATE GetWindowState() {
+		return m_WindowState;
+	}
 
 private:
 	long m_RefCount;
@@ -82,6 +102,15 @@ private:
 	WindowMessageDispatcher m_WindowMessageDispatcher; //Dispatches window messages to the callback
 	GamepadMessageDispatcher m_GamepadMessageDispatcher; //Dispatches gamepad messages to the callback
 	SwapChainController m_SwapChainController;
+
+	CComPtr<IDXWindowCallback> m_Callback;
+
+	DXWINDOW_STATE m_State;
+	DXWINDOW_FULLSCREEN_STATE m_FullscreenState;
+	DXWINDOW_WINDOW_STATE m_WindowState;
+
+	DWORD m_WindowStyle;
+	DWORD m_WindowExStyle;
 
 	BOOL m_AllowToggle;
 };

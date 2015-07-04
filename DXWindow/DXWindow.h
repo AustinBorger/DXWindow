@@ -8,8 +8,7 @@ enum DXWINDOW_STATE {
 	DXWINDOW_STATE_FULLSCREEN = 1, //Exclusive fullscreen
 	DXWINDOW_STATE_FULLSCREEN_WINDOW, //Non-exclusive fullscreen window
 	DXWINDOW_STATE_WINDOWED, //Movable window with border
-	DXWINDOW_STATE_BORDERLESS, //Non-movable window with no border
-	DXWINDOW_STATE_MAXIMIZED //Window that fills the work area of the monitor
+	DXWINDOW_STATE_BORDERLESS //Non-movable window with no border
 };
 
 /* DXWINDOW_STATE restricted to fullscreen modes. */
@@ -21,8 +20,7 @@ enum DXWINDOW_FULLSCREEN_STATE {
 /* DXWINDOW_STATE restricted to windowed modes. */
 enum DXWINDOW_WINDOW_STATE {
 	DXWINDOW_WINDOW_STATE_WINDOWED = DXWINDOW_STATE_WINDOWED,
-	DXWINDOW_WINDOW_STATE_BORDERLESS = DXWINDOW_STATE_BORDERLESS,
-	DXWINDOW_WINDOW_STATE_MAXIMIZED = DXWINDOW_STATE_MAXIMIZED
+	DXWINDOW_WINDOW_STATE_BORDERLESS = DXWINDOW_STATE_BORDERLESS
 };
 
 /* Used when creating the window. */
