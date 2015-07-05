@@ -30,19 +30,23 @@
 
 class CDXWindow;
 
+/* This class detects changes in gamepad state and translates them to events
+** in the form of method calls to the callback interface supplied by the
+** application. */
 class GamepadMessageDispatcher {
 public:
+	//Initialize reference to window, zero out m_PrevState
 	GamepadMessageDispatcher(CDXWindow& Window);
 
-	~GamepadMessageDispatcher();
-
+	/* Initializes reference to the callback. */
 	HRESULT Initialize(CComPtr<IDXWindowCallback> Callback);
 
+	/* This is the event dispatch method. */
 	void CheckGamepads();
 
 private:
-	CDXWindow& m_Window;
-	CComPtr<IDXWindowCallback> m_Callback;
-	static const UINT nMaxGamepads = 4;
-	XINPUT_STATE m_PrevState[nMaxGamepads];
+	CDXWindow& m_Window; //Reference to the associated window
+	CComPtr<IDXWindowCallback> m_Callback; //Reference to the application-supplied callback
+	static const UINT nMaxGamepads = 4; //Maximum number of gamepads that can be connected at once
+	XINPUT_STATE m_PrevState[nMaxGamepads]; //The state of all the gamepads
 };

@@ -129,8 +129,10 @@ VOID CDXWindow::PumpMessages() {
 	//Sends all other window messages
 	m_WindowMessageDispatcher.RunMessagePump();
 
-	//Sends all gamepad messages
-	m_GamepadMessageDispatcher.CheckGamepads();
+	//Sends all gamepad messages only if the window is in focus
+	if (m_InFocus != FALSE) {
+		m_GamepadMessageDispatcher.CheckGamepads();
+	}
 }
 
 //Flips the swap chain at the requested frame interval

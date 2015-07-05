@@ -25,14 +25,13 @@
 
 #define CHECK_ERR(Line) if (err != ERROR_SUCCESS) m_Callback->OnObjectFailure(L"GamepadMessageDispatcher.cpp", Line, HRESULT_FROM_WIN32(err)); return
 
+//Initialize reference to the window and zero out m_PrevState
 GamepadMessageDispatcher::GamepadMessageDispatcher(CDXWindow& Window) :
 m_Window(Window) {
 	ZeroMemory(m_PrevState, sizeof(m_PrevState));
 }
 
-GamepadMessageDispatcher::~GamepadMessageDispatcher() 
-{ }
-
+//Initializes the reference to the callback object
 HRESULT GamepadMessageDispatcher::Initialize(CComPtr<IDXWindowCallback> Callback) {
 	m_Callback = Callback;
 
@@ -46,6 +45,7 @@ void GamepadMessageDispatcher::CheckGamepads() {
 	for (DWORD i = 0; i < nMaxGamepads; i++) {
 		err = XInputGetState(i, &xstate);
 
+		//If the device isn't connected, just skip it
 		if (err == ERROR_DEVICE_NOT_CONNECTED) {
 			continue;
 		} else {
@@ -53,10 +53,11 @@ void GamepadMessageDispatcher::CheckGamepads() {
 		}
 
 		if (xstate.dwPacketNumber > m_PrevState[i].dwPacketNumber) {
-			const WORD wButtonDelta = xstate.Gamepad.wButtons ^ m_PrevState[i].Gamepad.wButtons;
-			const WORD wButtonDown = xstate.Gamepad.wButtons & wButtonDelta;
-			const WORD wButtonUp = wButtonDown ^ wButtonDelta;
+			const WORD wButtonDelta = xstate.Gamepad.wButtons ^ m_PrevState[i].Gamepad.wButtons; //Change in button orientation
+			const WORD wButtonDown = xstate.Gamepad.wButtons & wButtonDelta; //Buttons that have been pressed
+			const WORD wButtonUp = wButtonDown ^ wButtonDelta; //Buttons that have been released
 
+			//Check the button presses
 			if (wButtonDown) {
 				for (UINT j = 0; j < sizeof(WORD) * 8; j++) {
 					if ((wButtonDown >> j) & 0x1) {
@@ -65,6 +66,7 @@ void GamepadMessageDispatcher::CheckGamepads() {
 				}
 			}
 
+			//Check the button releases
 			if (wButtonUp) {
 				for (UINT j = 0; j < sizeof(WORD) * 8; j++) {
 					if ((wButtonUp >> j) & 0x1) {
@@ -73,24 +75,29 @@ void GamepadMessageDispatcher::CheckGamepads() {
 				}
 			}
 
+			//Check the position of the left trigger
 			if (xstate.Gamepad.bLeftTrigger != m_PrevState[i].Gamepad.bLeftTrigger) {
 				m_Callback->OnGamepadLeftTriggerMove(&m_Window, i, xstate.Gamepad.bLeftTrigger);
 			}
 
+			//Check the position of the right trigger
 			if (xstate.Gamepad.bRightTrigger != m_PrevState[i].Gamepad.bRightTrigger) {
 				m_Callback->OnGamepadRightTriggerMove(&m_Window, i, xstate.Gamepad.bRightTrigger);
 			}
 
+			//Check the position of the left analog
 			if (!(xstate.Gamepad.sThumbLX == m_PrevState[i].Gamepad.sThumbLX &&
 				  xstate.Gamepad.sThumbLY == m_PrevState[i].Gamepad.sThumbLY)) {
 				m_Callback->OnGamepadLeftAnalogMove(&m_Window, i, xstate.Gamepad.sThumbLX, xstate.Gamepad.sThumbLY);
 			}
 
+			//Check the position of the right analog
 			if (!(xstate.Gamepad.sThumbRX == m_PrevState[i].Gamepad.sThumbRX &&
 				  xstate.Gamepad.sThumbRY == m_PrevState[i].Gamepad.sThumbRY)) {
 				m_Callback->OnGamepadRightAnalogMove(&m_Window, i, xstate.Gamepad.sThumbRX, xstate.Gamepad.sThumbRY);
 			}
 
+			//Store the current state in the previous state for the next frame to check against
 			m_PrevState[i] = xstate;
 		}
 	}
