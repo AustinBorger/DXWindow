@@ -111,6 +111,8 @@ HRESULT SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 		DXGI_MWA_NO_WINDOW_CHANGES
 	); CHECK_HR();
 
+	m_Callback->OnBackBufferCreate(&m_Window);
+
 	return S_OK;
 }
 

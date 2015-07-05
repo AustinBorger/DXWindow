@@ -27,6 +27,7 @@
 #pragma comment(lib, "XInput9_1_0.lib")
 #pragma comment(lib, "dxgi.lib")
 
+//Create the window
 HRESULT DXWindowCreateWindow (
 	const DXWINDOW_DESC* pDesc,
 	IUnknown* pDevice,
