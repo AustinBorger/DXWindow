@@ -17,7 +17,7 @@
 
 /*
 ** API documentation is available here:
-**		https://github.com/AustinBorger/DXAudio
+**		https://github.com/AustinBorger/DXWindow
 */
 
 #pragma once
