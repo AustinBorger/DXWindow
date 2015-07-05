@@ -1,6 +1,7 @@
 #include "CDXWindow.h"
 #include <time.h>
 
+//Window styles for each of the modes
 static const DWORD WINDOWED_STYLE = WS_SYSMENU | WS_OVERLAPPED | WS_CAPTION | WS_MINIMIZEBOX | WS_VISIBLE;
 static const DWORD WINDOWED_EX_STYLE = NULL;
 static const DWORD BORDERLESS_STYLE = WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE;
@@ -8,12 +9,14 @@ static const DWORD BORDERLESS_EX_STYLE = WS_EX_APPWINDOW;
 static const DWORD FULLSCREEN_WINDOW_STYLE = WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE;
 static const DWORD FULLSCREEN_WINDOW_EX_STYLE = WS_EX_TOPMOST | WS_EX_APPWINDOW;
 
+//Class name prefix
 static LPCWSTR WINDOW_CLASS_NAME = L"DXWindow";
 
 #define CHECK_HR(Line) if (FAILED(hr)) m_Callback->OnObjectFailure(L"CDXWindow.cpp", Line, hr)
 #define CHECK_ERR(Line) if (err != ERROR_SUCCESS) m_Callback->OnObjectFailure(L"CDXWindow.cpp", Line, HRESULT_FROM_WIN32(err))
-#define CHECK_BRESULT(Line) if (bresult == FALSE) m_Callback->OnObjectFailure(L"CDXWindow.cpp", Line, HRESULT_FROM_WIN32(GetLastError()))
+#define CHECK_BRESULT(Line) if (bresult == FALSE) { HRESULT hr = HRESULT_FROM_WIN32(GetLastError()); if (FAILED(hr)) m_Callback->OnObjectFailure(L"CDXWindow.cpp", Line, hr); }
 
+//Zero out data (except for refcount) and pass in references
 CDXWindow::CDXWindow() :
 m_RefCount(1),
 m_Handle(NULL),
@@ -31,7 +34,13 @@ m_GamepadMessageDispatcher(*this),
 m_SwapChainController(*this, m_OutputEnum)
 { }
 
+//Delete dynamically allocated stuff
 CDXWindow::~CDXWindow() {
+	if (m_Handle != NULL) {
+		DestroyWindow(m_Handle);
+		m_Handle = NULL;
+	}
+
 	if (!m_ClassName.empty()) {
 		UnregisterClassW(m_ClassName.c_str(), m_Instance);
 	}
@@ -40,6 +49,8 @@ CDXWindow::~CDXWindow() {
 HRESULT CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWindowCallback* pDXWindowCallback) {
 	HRESULT hr = S_OK;
 	CComPtr<IUnknown> DeviceUnk = pDevice;
+
+	//Initialize variables based on description
 	m_Callback = pDXWindowCallback;
 	m_Instance = Desc.Instance;
 	m_FullscreenState = Desc.FullscreenState;
@@ -47,34 +58,41 @@ HRESULT CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXW
 	m_WindowWidth = Desc.Width;
 	m_WindowHeight = Desc.Height;
 
+	//Initialize the output enumeration
 	hr = m_OutputEnum.Initialize(DeviceUnk);
 
 	if (FAILED(hr)) {
 		return hr;
 	}
 
+	//Register the window class
 	RegisterWindowClass(Desc);
 
+	//Create the window
 	MakeWindow(Desc);
 
+	//Initialize the window message dispatcher
 	hr = m_WindowMessageDispatcher.Initialize(m_Handle, m_Callback);
 
 	if (FAILED(hr)) {
 		return hr;
 	}
 
+	//Initialize the gamepad message dispatcher
 	hr = m_GamepadMessageDispatcher.Initialize(m_Callback);
 
 	if (FAILED(hr)) {
 		return hr;
 	}
 
+	//Initialize the swap chain controller
 	hr = m_SwapChainController.Initialize(DeviceUnk, m_Callback, m_Handle);
 
 	if (FAILED(hr)) {
 		return hr;
 	}
 
+	//Initialize the state before calling SetState()
 	DXWINDOW_STATE State = Desc.InitFullscreen != FALSE ? (DXWINDOW_STATE)(Desc.FullscreenState) : (DXWINDOW_STATE)(Desc.WindowState);
 
 	SetState(State);
@@ -83,13 +101,17 @@ HRESULT CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXW
 }
 
 VOID CDXWindow::PumpMessages() {
+	//Sends a OnWindowShow or OnWindowHide event in a change of window visibility
 	m_WindowMessageDispatcher.CheckWindowVisible();
 
+	//Sends all other window messages
 	m_WindowMessageDispatcher.RunMessagePump();
 
+	//Sends all gamepad messages
 	m_GamepadMessageDispatcher.CheckGamepads();
 }
 
+//Flips the swap chain at the requested frame interval
 VOID CDXWindow::Present(UINT SyncInterval, UINT Flags) {
 	HRESULT hr = S_OK;
 
@@ -99,6 +121,7 @@ VOID CDXWindow::Present(UINT SyncInterval, UINT Flags) {
 	); CHECK_HR(__LINE__);
 }
 
+//Returns the backbuffer in the requested interface
 VOID CDXWindow::GetBackBuffer(REFIID rIID, void** ppvBackBuffer) {
 	HRESULT hr = S_OK;
 
@@ -118,14 +141,14 @@ LRESULT CDXWindow::WindowProcess(UINT Message, WPARAM wParam, LPARAM lParam) {
 					return S_OK; //prevents F10 from losing window focus
 				} break;
 
-				default: {
+				default: { //Let DefwindowProc handle all other SYSCOMMANDS
 					return DefWindowProcW(m_Handle, Message, wParam, lParam);
 				} break;
 			}
 		} return 0;
 
 		case WM_DISPLAYCHANGE: {
-
+			DisplayChange();
 		} return 0;
 
 		case WM_KEYDOWN: {
@@ -155,6 +178,7 @@ VOID CDXWindow::UpdateWindowState() {
 	DWORD err = ERROR_SUCCESS;
 	HRESULT hr = S_OK;
 
+	//Set the appropriate window style
 	if (m_WindowState == DXWINDOW_WINDOW_STATE_WINDOWED) {
 		m_WindowStyle = WINDOWED_STYLE;
 		m_WindowExStyle = WINDOWED_EX_STYLE;
@@ -163,8 +187,15 @@ VOID CDXWindow::UpdateWindowState() {
 		m_WindowExStyle = BORDERLESS_EX_STYLE;
 	}
 
+	//SetLastError() has to be called before all calls to SetWindowLong.
+	//This is because SetWindowLong can return either the previous value
+	//of GWL_STYLE or GWL_EXSTYLE or zero on failure.  However, they might
+	//have been zero before, in which case bresult is picking up on a false
+	//positive.  To solve this problem, setting the last error to zero ensures
+	//that the previous error is not mixed with the current one.
 	SetLastError(0);
 
+	//Sets the window style
 	bresult = SetWindowLongW (
 		m_Handle,
 		GWL_STYLE,
@@ -173,12 +204,14 @@ VOID CDXWindow::UpdateWindowState() {
 
 	SetLastError(0);
 
+	//Sets the window ex style
 	bresult = SetWindowLongW (
 		m_Handle,
 		GWL_EXSTYLE,
 		m_WindowExStyle
 	); CHECK_BRESULT(__LINE__);
 
+	//Center the window and cursor
 	CenterWindow();
 
 	CenterCursor();
@@ -193,6 +226,7 @@ VOID CDXWindow::ToggleFullscreen() {
 			hr = m_SwapChainController.ToggleFullscreen(); CHECK_HR(__LINE__);
 		}
 
+		//Set the state before calling UpdateWindowState()
 		m_State = (DXWINDOW_STATE)(m_WindowState);
 
 		UpdateWindowState();
@@ -220,14 +254,17 @@ VOID CDXWindow::FullscreenWindow() {
 	m_WindowStyle = FULLSCREEN_WINDOW_STYLE;
 	m_WindowExStyle = FULLSCREEN_WINDOW_EX_STYLE;
 
+	//Once again, SetLastError must be called before SetWindowLong
 	SetLastError(0);
 
+	//Set the window style
 	bresult = SetWindowLongW (
 		m_Handle,
 		GWL_STYLE,
 		m_WindowStyle
 	); CHECK_BRESULT(__LINE__);
 
+	//Fills the desktop that the window currently inhabits
 	bresult = SetWindowPos (
 		m_Handle,
 		NULL,
@@ -240,6 +277,7 @@ VOID CDXWindow::FullscreenWindow() {
 
 	SetLastError(0);
 
+	//Set the window ex style
 	bresult = SetWindowLongW (
 		m_Handle,
 		GWL_EXSTYLE,
@@ -261,6 +299,9 @@ VOID CDXWindow::RegisterWindowClass(const DXWINDOW_DESC& Desc) {
 	LPCWSTR SmallIcon = Desc.IconSmall;
 	LPCWSTR Cursor = Desc.Cursor;
 
+	//If the application provided us NULL icons or cursors,
+	//then the instance must be NULL when calling LoadCursor()
+	//or LoadIcon().
 	if (LargeIcon == NULL) {
 		LargeIcon = IDI_APPLICATION;
 		LargeInstance = NULL;
@@ -276,6 +317,7 @@ VOID CDXWindow::RegisterWindowClass(const DXWINDOW_DESC& Desc) {
 		CursorInstance = NULL;
 	}
 
+	//Sets the class name to the prefix + the title of the window
 	m_ClassName = WINDOW_CLASS_NAME;
 	m_ClassName.append(Desc.Title);
 
@@ -339,11 +381,15 @@ VOID CDXWindow::MakeWindow(const DXWINDOW_DESC& Desc) {
 VOID CDXWindow::KillFocus() {
 	m_InFocus = FALSE;
 
+	//If the window is not in focus - say CTRL-ALT-DEL is pressed,
+	//but the window was in fullscreen, make it enter its windowed
+	//state (otherwise the result can get ugly).
 	if (m_State == DXWINDOW_STATE_FULLSCREEN || m_State == DXWINDOW_STATE_FULLSCREEN_WINDOW) {
 		ToggleFullscreen();
 	}
 }
 
+//Reacts to WM_SETFOCUS by setting the InFocus flag to true
 VOID CDXWindow::SetFocus() {
 	m_InFocus = TRUE;
 }
@@ -355,6 +401,8 @@ VOID CDXWindow::CenterCursor() {
 	RECT rect;
 	POINT point = { 0 };
 
+	//Gets the client rect, then translates it to screen coordinates
+	//so that SetCursorPos isn't called with relative x and y values
 	GetClientRect(m_Handle, &rect);
 	ClientToScreen(m_Handle, &point);
 
@@ -402,16 +450,18 @@ VOID CDXWindow::CenterWindow() {
 
 VOID CDXWindow::SetState(DXWINDOW_STATE State) {
 	if (State != m_State) {
-		if (m_State == DXWINDOW_STATE_FULLSCREEN || m_State == DXWINDOW_STATE_FULLSCREEN_WINDOW) { //It's a fullscreen state
+		if (m_State == DXWINDOW_STATE_FULLSCREEN || m_State == DXWINDOW_STATE_FULLSCREEN_WINDOW) { //We're in fullscreen state now
 			m_State = State;
 
-			if (State == DXWINDOW_STATE_WINDOWED || State == DXWINDOW_STATE_BORDERLESS) {
-				ToggleFullscreen();
-			} else {
+			if (State == DXWINDOW_STATE_WINDOWED || State == DXWINDOW_STATE_BORDERLESS) { //Go to a windowed state
+				ToggleFullscreen(); //Toggle fullscreen handles distinctions between windowed states
+			} else { //Enter fullscreen window instead
 				HRESULT hr = S_OK;
 
+				//Leave exclusive fullscreen mode
 				hr = m_SwapChainController.ToggleFullscreen(); CHECK_HR(__LINE__);
 
+				//Enter non-exclusive fullscreen mode
 				if (State == DXWINDOW_STATE_FULLSCREEN_WINDOW) {
 					FullscreenWindow();
 				}
@@ -419,9 +469,9 @@ VOID CDXWindow::SetState(DXWINDOW_STATE State) {
 		} else { //It's a windowed state
 			if (State == DXWINDOW_STATE_FULLSCREEN || State == DXWINDOW_STATE_FULLSCREEN_WINDOW) {
 				ToggleFullscreen();
-				m_State = State;
+				m_State = State; //Has to be set after calling ToggleFullscreen()
 			} else {
-				m_State = State;
+				m_State = State; //Has to be set before calling UpdateWindowState()
 				UpdateWindowState();
 			}
 		}
@@ -437,4 +487,8 @@ VOID CDXWindow::SetWindowResolution(WORD Width, WORD Height) {
 
 		CenterCursor();
 	}
+}
+
+VOID CDXWindow::DisplayChange() {
+
 }

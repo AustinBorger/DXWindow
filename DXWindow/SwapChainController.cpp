@@ -38,7 +38,7 @@ HRESULT SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 
 	RECT WindowRect;
 
-	bresult = GetWindowRect (
+	bresult = GetClientRect (
 		m_Handle,
 		&WindowRect
 	); CHECK_BRESULT();

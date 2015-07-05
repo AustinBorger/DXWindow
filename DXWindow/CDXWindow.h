@@ -91,27 +91,6 @@ public:
 	/* Creates all objects and sets up the window/swap chain. */
 	HRESULT Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWindowCallback* pDXWindowCallback);
 
-	/* Centers the window on the desktop. */
-	VOID CenterWindow();
-
-	/* Centers the cursor within the window. */
-	VOID CenterCursor();
-
-	/* Updates the look of the window based on the current window state. */
-	VOID UpdateWindowState();
-
-	/* Reacts to a WM_KILLFOCUS message. */
-	VOID KillFocus();
-
-	/* Reacts to a WM_SETFOCUS message. */
-	VOID SetFocus();
-
-	/* Toggles between the specified fullscreen mode and the specified window mode. */
-	VOID ToggleFullscreen();
-
-	/* Sets the window to fullscreen window mode. */
-	VOID FullscreenWindow();
-
 private:
 	long m_RefCount; //The reference count
 
@@ -144,4 +123,28 @@ private:
 
 	/* Creates the window. */
 	VOID MakeWindow(const DXWINDOW_DESC& Desc);
+
+	/* Centers the window on the desktop. */
+	VOID CenterWindow();
+
+	/* Centers the cursor within the window. */
+	VOID CenterCursor();
+
+	/* Updates the look of the window based on the current window state. */
+	VOID UpdateWindowState();
+
+	/* Reacts to a WM_KILLFOCUS message. */
+	VOID KillFocus();
+
+	/* Reacts to a WM_SETFOCUS message. */
+	VOID SetFocus();
+
+	/* Toggles between the specified fullscreen mode and the specified window mode. */
+	VOID ToggleFullscreen();
+
+	/* Sets the window to fullscreen window mode. */
+	VOID FullscreenWindow();
+
+	/* Reacts to a WM_DISPLAYCHANGE message */
+	VOID DisplayChange();
 };
