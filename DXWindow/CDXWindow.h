@@ -169,4 +169,7 @@ private:
 
 	/* Reacts to a WM_DISPLAYCHANGE message */
 	VOID DisplayChange();
+
+	/* Retrieves the desktop area of the output the window occupies. */
+	VOID GetDesktopArea(RECT& DesktopArea);
 };

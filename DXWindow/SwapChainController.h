@@ -33,29 +33,35 @@
 
 class CDXWindow;
 
+/* This class deals with the swap chain. */
 class SwapChainController {
 public:
+	/* Initializes references. */
 	SwapChainController(CDXWindow& Window, OutputEnum& Enum);
 
+	/* Creates the swap chain and initializes references. */
 	HRESULT Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback, HWND Handle);
 
+	/* Toggles between exclusive fullscreen. */
 	HRESULT ToggleFullscreen();
 
+	/* Resizes the buffers in response to a target or window resize. */
 	HRESULT ResizeBuffers();
 
-	HRESULT GetDesktopArea(RECT& DesktopArea);
-
+	/* Flips the back and front buffers. */
 	HRESULT Present(UINT SyncInterval, UINT Flags);
 
+	/* Retrieves the back buffer in the requested interface. */
 	HRESULT GetBackBuffer(REFIID rIID, void** ppvBackBuffer);
 
 private:
-	CDXWindow& m_Window;
-	CComPtr<IDXWindowCallback> m_Callback;
-	CComPtr<IDXGISwapChain> m_SwapChain;
-	HWND m_Handle;
-	OutputEnum& m_OutputEnum;
+	CDXWindow& m_Window; //Reference to the window object
+	CComPtr<IDXWindowCallback> m_Callback; //Reference to the application-supplied callback
+	CComPtr<IDXGISwapChain> m_SwapChain; //Our swap chain
+	HWND m_Handle; //The window handle (assigned by CDXWindow)
+	OutputEnum& m_OutputEnum; //Reference to the output enumeration
 
+	/* Indicates whether or not the swap chain is in exclusive fullscreen mode. */
 	BOOL IsFullscreen() {
 		BOOL Fullscreen;
 
@@ -67,5 +73,6 @@ private:
 		return Fullscreen;
 	}
 
+	/* Creates the swap chain. */
 	HRESULT CreateSwapChain(CComPtr<IUnknown> DeviceUnk);
 };

@@ -31,19 +31,29 @@ static void Zero(T& t) {
 	ZeroMemory(&t, sizeof(T));
 }
 
+//The back and front buffers will be BGRA.  The reason for this is that
+//the Windows desktop is usually rendered in this format, which reduces
+//the chance of a mode change when entering exclusive fullscreen mode,
+//which in turn reduces the time it takes to enter it.  Also, Direct2D
+//requires that this format be enabled, and we don't want to prevent
+//the application from using it.
 static const DXGI_FORMAT GLOBAL_DXGI_FORMAT = DXGI_FORMAT_B8G8R8A8_UNORM;
 
+//Initialize our reference
 SwapChainController::SwapChainController(CDXWindow& Window, OutputEnum& Enum) :
 m_Window(Window),
-m_OutputEnum(Enum)
+m_OutputEnum(Enum),
+m_Handle(NULL)
 { }
 
 HRESULT SwapChainController::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback, HWND Handle) {
 	HRESULT hr = S_OK;
 
+	//Initialize references
 	m_Callback = Callback;
 	m_Handle = Handle;
 
+	//Create the swap chain
 	hr = CreateSwapChain (
 		DeviceUnk
 	); CHECK_HR();
@@ -60,11 +70,13 @@ HRESULT SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 
 	RECT WindowRect;
 
+	//Retrieves the client area of the window, which tells us its renderable width and height
 	bresult = GetClientRect (
 		m_Handle,
 		&WindowRect
 	); CHECK_BRESULT();
 
+	//Fill the swap chain description
 	desc.BufferCount = 1;
 	desc.BufferDesc.Format = GLOBAL_DXGI_FORMAT;
 	desc.BufferDesc.Width = WindowRect.right - WindowRect.left;
@@ -81,16 +93,19 @@ HRESULT SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 	desc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
 	desc.Windowed = TRUE;
 
+	//This is the factory that made the application's device
 	hr = m_OutputEnum.GetAdapter()->GetParent (
 		IID_PPV_ARGS(&factory)
 	); CHECK_HR();
 
+	//Use that factory to create the swap chain
 	hr = factory->CreateSwapChain (
 		DeviceUnk,
 		&desc,
 		&m_SwapChain
 	); CHECK_HR();
 
+	//Turn off alt-enter, since we're using F11 instead
 	hr = factory->MakeWindowAssociation (
 		m_Handle,
 		DXGI_MWA_NO_WINDOW_CHANGES
@@ -99,10 +114,12 @@ HRESULT SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 	return S_OK;
 }
 
+//Flip the swap chain at the requested frame interval
 HRESULT SwapChainController::Present(UINT SyncInterval, UINT Flags) {
 	return m_SwapChain->Present(SyncInterval, Flags);
 }
 
+//Retrieve the back buffer from the swap chain
 HRESULT SwapChainController::GetBackBuffer(REFIID rIID, void** ppvBackBuffer) {
 	return m_SwapChain->GetBuffer(0, rIID, ppvBackBuffer);
 }
@@ -131,6 +148,7 @@ HRESULT SwapChainController::ToggleFullscreen() {
 		mode.Width = DesktopArea.right - DesktopArea.left;
 		mode.Height = DesktopArea.bottom - DesktopArea.top;
 
+		//ResizeTarget() should be called before SetFullscreenState(), as per MSDN recommendations
 		hr = m_SwapChain->ResizeTarget (
 			&mode
 		); CHECK_HR();
@@ -154,6 +172,8 @@ HRESULT SwapChainController::ToggleFullscreen() {
 HRESULT SwapChainController::ResizeBuffers() {
 	HRESULT hr = S_OK;
 
+	//The application should release all references to the back buffer,
+	//otherwise ResizeBuffers() will fail
 	m_Callback->OnBackBufferRelease(&m_Window);
 
 	hr = m_SwapChain->ResizeBuffers (
@@ -164,23 +184,9 @@ HRESULT SwapChainController::ResizeBuffers() {
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH	//UINT SwapChainFlags
 	); CHECK_HR();
 
+	//Now that the buffer is created, the application should now
+	//retrieve its reference to the back buffer again
 	m_Callback->OnBackBufferCreate(&m_Window);
-
-	return S_OK;
-}
-
-HRESULT SwapChainController::GetDesktopArea(RECT& DesktopArea) {
-	HRESULT hr = S_OK;
-
-	Output* output = m_OutputEnum.SearchOutput(m_Handle);
-
-	if (output == nullptr) {
-		return E_FAIL;
-	}
-
-	hr = output->GetDesktopArea (
-		&DesktopArea
-	); CHECK_HR();
 
 	return S_OK;
 }

@@ -271,7 +271,7 @@ VOID CDXWindow::FullscreenWindow() {
 	BOOL bresult = TRUE;
 	RECT DesktopArea;
 
-	hr = m_SwapChainController.GetDesktopArea(DesktopArea); CHECK_HR(__LINE__);
+	GetDesktopArea(DesktopArea);
 
 	m_WindowStyle = FULLSCREEN_WINDOW_STYLE;
 	m_WindowExStyle = FULLSCREEN_WINDOW_EX_STYLE;
@@ -509,6 +509,21 @@ VOID CDXWindow::SetWindowResolution(WORD Width, WORD Height) {
 
 		CenterCursor();
 	}
+}
+
+//Retrieves the desktop area of the output the window occupies
+VOID CDXWindow::GetDesktopArea(RECT& DesktopArea) {
+	HRESULT hr = S_OK;
+
+	Output* output = m_OutputEnum.SearchOutput(m_Handle);
+
+	if (output == nullptr) {
+		m_Callback->OnObjectFailure(L"CDXWindow.cpp", __LINE__, E_FAIL);
+	}
+
+	hr = output->GetDesktopArea (
+		&DesktopArea
+	); CHECK_HR(__LINE__);
 }
 
 VOID CDXWindow::DisplayChange() {
