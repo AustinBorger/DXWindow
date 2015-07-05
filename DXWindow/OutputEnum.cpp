@@ -8,6 +8,8 @@ OutputEnum::OutputEnum()
 OutputEnum::~OutputEnum() 
 { }
 
+#include <iostream>
+
 HRESULT OutputEnum::Initialize(CComPtr<IUnknown> DeviceUnk) {
 	HRESULT hr = S_OK;
 	CComPtr<IDXGIDevice> DxgiDevice;
@@ -27,6 +29,7 @@ HRESULT OutputEnum::Initialize(CComPtr<IUnknown> DeviceUnk) {
 	CComPtr<IDXGIOutput> output;
 
 	while (true) {
+		//Retrieves all outputs, even inactive ones
 		hr = m_Adapter->EnumOutputs (
 			index,
 			&output
@@ -53,16 +56,19 @@ HRESULT OutputEnum::Initialize(CComPtr<IUnknown> DeviceUnk) {
 }
 
 Output* OutputEnum::SearchOutput(HWND Handle) {
+	//Gets the nearest monitor
 	HMONITOR monitor = MonitorFromWindow (
 		Handle,
 		MONITOR_DEFAULTTONEAREST
 	);
 
+	//Finds the output with the same monitor handle
 	for (Output& output : m_Outputs) {
 		if (output.GetMonitor() == monitor) {
 			return &output;
 		}
 	}
 
+	//This probably will never happen
 	return nullptr;
 }

@@ -11,6 +11,12 @@ static void Zero(T& t) {
 
 static const DWORD DM_FIELDS = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFLAGS | DM_DISPLAYFREQUENCY;
 
+//Zero out the description structure
+Output::Output() {
+	Zero(m_Desc);
+}
+
+//Initialize the description structure and DXGIOutput object reference
 HRESULT Output::Initialize(CComPtr<IDXGIOutput> obj) {
 	HRESULT hr;
 
@@ -41,11 +47,13 @@ HRESULT Output::GetWindowCenter(UINT Width, UINT Height, RECT* pRect, DWORD dwSt
 	work_width = work.right - work.left;
 	work_height = work.bottom - work.top;
 
+	//Generate a center rect for a pure client window
 	center.left = work.left + (work_width - Width) / 2;
 	center.right = center.left + Width;
 	center.top = work.top + (work_height - Height) / 2;
 	center.bottom = center.top + Height;
 
+	//Adjusts the rect based on border dimensions, etc
 	bresult = AdjustWindowRectEx (
 		&center,
 		dwStyle,
