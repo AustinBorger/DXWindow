@@ -48,19 +48,17 @@ WindowMessageDispatcher::~WindowMessageDispatcher() {
 }
 
 //Add the handle-dispatcher relationship to the global window map
-HRESULT WindowMessageDispatcher::Initialize(HWND Handle, CComPtr<IDXWindowCallback> Callback) {
+VOID WindowMessageDispatcher::Initialize(HWND Handle, CComPtr<IDXWindowCallback> Callback) {
 	g_WindowMapMutex.lock();
 	g_WindowMap[Handle] = this;
 	g_WindowMapMutex.unlock();
 
 	m_Callback = Callback;
 	m_PrevWindowVisible = TRUE;
-
-	return S_OK;
 }
 
 //Handle all messages in the queue
-void WindowMessageDispatcher::RunMessagePump() {
+VOID WindowMessageDispatcher::RunMessagePump() {
 	MSG Message;
 
 	while (PeekMessageW(&Message, m_Handle, 0, 0, PM_REMOVE) > 0) {

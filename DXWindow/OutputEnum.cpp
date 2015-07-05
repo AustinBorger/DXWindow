@@ -22,7 +22,7 @@
 
 #include "OutputEnum.h"
 
-#define CHECK_HR() if (FAILED(hr)) return hr
+#define CHECK_HR(Line) if (FAILED(hr)) m_Callback->OnObjectFailure(L"OutputEnum.cpp", Line, hr)
 
 OutputEnum::OutputEnum()
 { }
@@ -32,19 +32,21 @@ OutputEnum::~OutputEnum()
 
 #include <iostream>
 
-HRESULT OutputEnum::Initialize(CComPtr<IUnknown> DeviceUnk) {
+VOID OutputEnum::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback) {
 	HRESULT hr = S_OK;
 	CComPtr<IDXGIDevice> DxgiDevice;
+
+	m_Callback = Callback;
 
 	//All D3D devices implement IDXGIDevice
 	hr = DeviceUnk->QueryInterface (
 		IID_PPV_ARGS(&DxgiDevice)
-	); CHECK_HR();
+	); CHECK_HR(__LINE__);
 
 	//The parent of a DXGI device is an adapter
 	hr = DxgiDevice->GetParent (
 		IID_PPV_ARGS(&m_Adapter)
-	); CHECK_HR();
+	); CHECK_HR(__LINE__);
 
 	//Populate the output list
 	UINT index = 0;
@@ -60,21 +62,17 @@ HRESULT OutputEnum::Initialize(CComPtr<IUnknown> DeviceUnk) {
 		if (hr == DXGI_ERROR_NOT_FOUND) {
 			break;
 		} else {
-			CHECK_HR();
+			CHECK_HR(__LINE__);
 		}
 
 		m_Outputs.push_back(Output());
 
-		hr = m_Outputs.back().Initialize(output);
-
-		CHECK_HR();
+		m_Outputs.back().Initialize(output, m_Callback);
 
 		output.Release();
 
 		index++;
 	}
-
-	return S_OK;
 }
 
 Output* OutputEnum::SearchOutput(HWND Handle) {
@@ -91,6 +89,11 @@ Output* OutputEnum::SearchOutput(HWND Handle) {
 		}
 	}
 
-	//This probably will never happen
-	return nullptr;
+	//This probably will never happen, but if the output isn't found we have a problem.
+	m_Callback->OnObjectFailure(L"OutputEnum.cpp", __LINE__, E_FAIL);
+}
+
+//Return the first output in the list
+Output* OutputEnum::PrimaryOutput() {
+	return &m_Outputs.front();
 }

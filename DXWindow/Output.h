@@ -27,6 +27,8 @@
 #include <atlbase.h>
 #include <vector>
 
+#include "DXWindow.h"
+
 /* This class represents a DXGI output and contains several convenience methods
 ** for translating DXGI stuff into regular winapi stuff. */
 class Output final {
@@ -35,17 +37,17 @@ public:
 	Output();
 
 	/* Initializes the description and DXGI object. */
-	HRESULT Initialize(CComPtr<IDXGIOutput> obj);
+	VOID Initialize(CComPtr<IDXGIOutput> obj, CComPtr<IDXWindowCallback> Callback);
 
 	/* Returns a rect specifying the position of a centered window given its
 	** dimensions and style. */
-	HRESULT GetWindowCenter(UINT Width, UINT Height, RECT* pRect, DWORD dwStyle, DWORD dwExStyle);
+	VOID GetWindowCenter(UINT Width, UINT Height, RECT* pRect, DWORD dwStyle, DWORD dwExStyle);
 
 	/* Returns the desktop work area of the output. */
-	HRESULT GetWorkArea(RECT* pRect);
+	VOID GetWorkArea(RECT* pRect);
 
 	/* Returns the desktop area of the output. */
-	HRESULT GetDesktopArea(RECT* pRect);
+	VOID GetDesktopArea(RECT* pRect);
 
 	/* Returns the output's monitor handle. */
 	HMONITOR GetMonitor() {
@@ -64,5 +66,6 @@ public:
 
 private:
 	CComPtr<IDXGIOutput> m_Obj; //The associated DXGIOutput object
+	CComPtr<IDXWindowCallback> m_Callback; //The application-supplied callback
 	DXGI_OUTPUT_DESC m_Desc; //The output's description
 };

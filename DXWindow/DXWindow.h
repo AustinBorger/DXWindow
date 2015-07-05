@@ -148,11 +148,6 @@ struct __declspec(uuid("af69111a-a1f8-4cd1-afd3-94abdcfb011c")) IDXWindowCallbac
 /* Convenience class that pre-defines all callback methods as empty. */
 class CDXWindowCallback : public IDXWindowCallback {
 public:
-	//Error callbacks
-
-	/* Called when an error has occured anywhere within the API. */
-	virtual VOID STDMETHODCALLTYPE OnObjectFailure(HRESULT hr) { }
-
 	//Gamepad callbacks
 
 	/* Called when a button on the gamepad is pressed. */

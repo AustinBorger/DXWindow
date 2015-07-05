@@ -39,10 +39,10 @@ public:
 	GamepadMessageDispatcher(CDXWindow& Window);
 
 	/* Initializes reference to the callback. */
-	HRESULT Initialize(CComPtr<IDXWindowCallback> Callback);
+	VOID Initialize(CComPtr<IDXWindowCallback> Callback);
 
 	/* This is the event dispatch method. */
-	void CheckGamepads();
+	VOID CheckGamepads();
 
 private:
 	CDXWindow& m_Window; //Reference to the associated window

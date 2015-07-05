@@ -23,8 +23,8 @@
 #include "SwapChainController.h"
 #include "CDXWindow.h"
 
-#define CHECK_HR() if (FAILED(hr)) return hr
-#define CHECK_BRESULT() if (bresult == FALSE) return HRESULT_FROM_WIN32(GetLastError())
+#define CHECK_HR(Line) if (FAILED(hr)) m_Callback->OnObjectFailure(L"SwapChainController.cpp", Line, hr)
+#define CHECK_BRESULT(Line) if (bresult == FALSE) { HRESULT hr = HRESULT_FROM_WIN32(GetLastError()); if (FAILED(hr)) m_Callback->OnObjectFailure(L"SwapChainController.cpp", Line, hr); }
 
 template <typename T>
 static void Zero(T& t) {
@@ -46,22 +46,20 @@ m_OutputEnum(Enum),
 m_Handle(NULL)
 { }
 
-HRESULT SwapChainController::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback, HWND Handle) {
-	HRESULT hr = S_OK;
-
+VOID SwapChainController::Initialize (
+	CComPtr<IUnknown> DeviceUnk,
+	CComPtr<IDXWindowCallback> Callback,
+	HWND Handle
+) {
 	//Initialize references
 	m_Callback = Callback;
 	m_Handle = Handle;
 
 	//Create the swap chain
-	hr = CreateSwapChain (
-		DeviceUnk
-	); CHECK_HR();
-
-	return S_OK;
+	CreateSwapChain(DeviceUnk);
 }
 
-HRESULT SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
+VOID SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 	HRESULT hr = S_OK;
 	BOOL bresult = TRUE;
 
@@ -74,7 +72,7 @@ HRESULT SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 	bresult = GetClientRect (
 		m_Handle,
 		&WindowRect
-	); CHECK_BRESULT();
+	); CHECK_BRESULT(__LINE__);
 
 	//Fill the swap chain description
 	desc.BufferCount = 1;
@@ -96,37 +94,46 @@ HRESULT SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 	//This is the factory that made the application's device
 	hr = m_OutputEnum.GetAdapter()->GetParent (
 		IID_PPV_ARGS(&factory)
-	); CHECK_HR();
+	); CHECK_HR(__LINE__);
 
 	//Use that factory to create the swap chain
 	hr = factory->CreateSwapChain (
 		DeviceUnk,
 		&desc,
 		&m_SwapChain
-	); CHECK_HR();
+	); CHECK_HR(__LINE__);
 
 	//Turn off alt-enter, since we're using F11 instead
 	hr = factory->MakeWindowAssociation (
 		m_Handle,
 		DXGI_MWA_NO_WINDOW_CHANGES
-	); CHECK_HR();
+	); CHECK_HR(__LINE__);
 
 	m_Callback->OnBackBufferCreate(&m_Window);
-
-	return S_OK;
 }
 
 //Flip the swap chain at the requested frame interval
-HRESULT SwapChainController::Present(UINT SyncInterval, UINT Flags) {
-	return m_SwapChain->Present(SyncInterval, Flags);
+VOID SwapChainController::Present(UINT SyncInterval, UINT Flags) {
+	HRESULT hr = S_OK;
+
+	hr = m_SwapChain->Present (
+		SyncInterval,
+		Flags
+	); CHECK_HR(__LINE__);
 }
 
 //Retrieve the back buffer from the swap chain
-HRESULT SwapChainController::GetBackBuffer(REFIID rIID, void** ppvBackBuffer) {
-	return m_SwapChain->GetBuffer(0, rIID, ppvBackBuffer);
+VOID SwapChainController::GetBackBuffer(REFIID rIID, void** ppvBackBuffer) {
+	HRESULT hr = S_OK;
+
+	hr = m_SwapChain->GetBuffer (
+		0,
+		rIID,
+		ppvBackBuffer
+	); CHECK_HR(__LINE__);
 }
 
-HRESULT SwapChainController::ToggleFullscreen() {
+VOID SwapChainController::ToggleFullscreen() {
 	HRESULT hr = S_OK;
 
 	BOOL Fullscreen = IsFullscreen();
@@ -135,14 +142,7 @@ HRESULT SwapChainController::ToggleFullscreen() {
 		RECT DesktopArea;
 
 		Output* output = m_OutputEnum.SearchOutput(m_Handle);
-
-		if (output == nullptr) {
-			return E_FAIL;
-		}
-
-		hr = output->GetDesktopArea (
-			&DesktopArea
-		); CHECK_HR();
+		output->GetDesktopArea(&DesktopArea);
 
 		DXGI_MODE_DESC mode; Zero(mode);
 		CComPtr<IDXGIOutput> obj = output->GetObj();
@@ -153,25 +153,23 @@ HRESULT SwapChainController::ToggleFullscreen() {
 		//ResizeTarget() should be called before SetFullscreenState(), as per MSDN recommendations
 		hr = m_SwapChain->ResizeTarget (
 			&mode
-		); CHECK_HR();
+		); CHECK_HR(__LINE__);
 
 		hr = m_SwapChain->SetFullscreenState (
 			TRUE,
 			obj
-		); CHECK_HR();
+		); CHECK_HR(__LINE__);
 
-		hr = ResizeBuffers(); CHECK_HR();
+		ResizeBuffers();
 	} else {
 		hr = m_SwapChain->SetFullscreenState (
 			FALSE,
 			nullptr
-		); CHECK_HR();
+		); CHECK_HR(__LINE__);
 	}
-
-	return S_OK;
 }
 
-HRESULT SwapChainController::ResizeBuffers() {
+VOID SwapChainController::ResizeBuffers() {
 	HRESULT hr = S_OK;
 
 	//The application should release all references to the back buffer,
@@ -184,11 +182,9 @@ HRESULT SwapChainController::ResizeBuffers() {
 		0,										//UINT Height
 		DXGI_FORMAT_UNKNOWN,					//DXGI_FORMAT NewFormat
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH	//UINT SwapChainFlags
-	); CHECK_HR();
+	); CHECK_HR(__LINE__);
 
 	//Now that the buffer is created, the application should now
 	//retrieve its reference to the back buffer again
 	m_Callback->OnBackBufferCreate(&m_Window);
-
-	return S_OK;
 }

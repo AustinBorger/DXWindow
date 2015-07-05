@@ -68,8 +68,7 @@ CDXWindow::~CDXWindow() {
 	}
 }
 
-HRESULT CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWindowCallback* pDXWindowCallback) {
-	HRESULT hr = S_OK;
+VOID CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWindowCallback* pDXWindowCallback) {
 	CComPtr<IUnknown> DeviceUnk = pDevice;
 
 	//Initialize variables based on description
@@ -81,11 +80,7 @@ HRESULT CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXW
 	m_WindowHeight = Desc.Height;
 
 	//Initialize the output enumeration
-	hr = m_OutputEnum.Initialize(DeviceUnk);
-
-	if (FAILED(hr)) {
-		return hr;
-	}
+	m_OutputEnum.Initialize(DeviceUnk, m_Callback);
 
 	//Register the window class
 	RegisterWindowClass(Desc);
@@ -94,32 +89,18 @@ HRESULT CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXW
 	MakeWindow(Desc);
 
 	//Initialize the window message dispatcher
-	hr = m_WindowMessageDispatcher.Initialize(m_Handle, m_Callback);
-
-	if (FAILED(hr)) {
-		return hr;
-	}
+	m_WindowMessageDispatcher.Initialize(m_Handle, m_Callback);
 
 	//Initialize the gamepad message dispatcher
-	hr = m_GamepadMessageDispatcher.Initialize(m_Callback);
-
-	if (FAILED(hr)) {
-		return hr;
-	}
+	m_GamepadMessageDispatcher.Initialize(m_Callback);
 
 	//Initialize the swap chain controller
-	hr = m_SwapChainController.Initialize(DeviceUnk, m_Callback, m_Handle);
-
-	if (FAILED(hr)) {
-		return hr;
-	}
+	m_SwapChainController.Initialize(DeviceUnk, m_Callback, m_Handle);
 
 	//Initialize the state before calling SetState()
 	DXWINDOW_STATE State = Desc.InitFullscreen != FALSE ? (DXWINDOW_STATE)(Desc.FullscreenState) : (DXWINDOW_STATE)(Desc.WindowState);
 
 	SetState(State);
-
-	return S_OK;
 }
 
 VOID CDXWindow::PumpMessages() {
@@ -137,22 +118,18 @@ VOID CDXWindow::PumpMessages() {
 
 //Flips the swap chain at the requested frame interval
 VOID CDXWindow::Present(UINT SyncInterval, UINT Flags) {
-	HRESULT hr = S_OK;
-
-	hr = m_SwapChainController.Present (
+	m_SwapChainController.Present (
 		SyncInterval,
 		Flags
-	); CHECK_HR(__LINE__);
+	);
 }
 
 //Returns the backbuffer in the requested interface
 VOID CDXWindow::GetBackBuffer(REFIID rIID, void** ppvBackBuffer) {
-	HRESULT hr = S_OK;
-
-	hr = m_SwapChainController.GetBackBuffer (
+	m_SwapChainController.GetBackBuffer (
 		rIID,
 		ppvBackBuffer
-	); CHECK_HR(__LINE__);
+	);
 }
 
 LRESULT CDXWindow::WindowProcess(UINT Message, WPARAM wParam, LPARAM lParam) {
@@ -182,7 +159,7 @@ LRESULT CDXWindow::WindowProcess(UINT Message, WPARAM wParam, LPARAM lParam) {
 		} return 0;
 
 		case WM_SIZE: {
-			hr = m_SwapChainController.ResizeBuffers(); CHECK_HR(__LINE__);
+			m_SwapChainController.ResizeBuffers();
 		} return S_OK;
 
 		case WM_KILLFOCUS: {
@@ -247,7 +224,7 @@ VOID CDXWindow::ToggleFullscreen() {
 	if (m_State == DXWINDOW_STATE_FULLSCREEN || m_State == DXWINDOW_STATE_FULLSCREEN_WINDOW) {
 		//I'm in fullscreen state now, switch to windowed
 		if (m_State == DXWINDOW_STATE_FULLSCREEN) {
-			hr = m_SwapChainController.ToggleFullscreen(); CHECK_HR(__LINE__);
+			m_SwapChainController.ToggleFullscreen();
 		}
 
 		//Set the state before calling UpdateWindowState()
@@ -257,7 +234,7 @@ VOID CDXWindow::ToggleFullscreen() {
 	} else {
 		//I'm in windowed state now, switch to fullscreen
 		if (m_FullscreenState == DXWINDOW_FULLSCREEN_STATE_FULLSCREEN) {
-			hr = m_SwapChainController.ToggleFullscreen(); CHECK_HR(__LINE__);
+			m_SwapChainController.ToggleFullscreen();
 		} else {
 			FullscreenWindow();
 		}
@@ -373,13 +350,13 @@ VOID CDXWindow::MakeWindow(const DXWINDOW_DESC& Desc) {
 
 	RECT WindowArea;
 
-	hr = output->GetWindowCenter (
+	output->GetWindowCenter (
 		m_WindowWidth,						    //UINT Width
 		m_WindowHeight,					        //UINT Height
 		&WindowArea,							//RECT* pRect
 		m_WindowStyle,							//DWORD dwStyle
 		m_WindowExStyle							//DWORD dwExStyle
-	); CHECK_HR(__LINE__);
+	);
 
 	m_Handle = CreateWindowExW (
 		m_WindowExStyle,						//DWORD dwExStyle
@@ -447,19 +424,15 @@ VOID CDXWindow::CenterWindow() {
 
 	Output* output = m_OutputEnum.SearchOutput(m_Handle);
 
-	if (output == nullptr) {
-		m_Callback->OnObjectFailure(L"CDXWindow.cpp", __LINE__, E_FAIL);
-	}
-
 	RECT WindowArea;
 
-	hr = output->GetWindowCenter (
+	output->GetWindowCenter (
 		m_WindowWidth,							//UINT Width
 		m_WindowHeight,							//UINT Height
 		&WindowArea,							//RECT* pRect
 		m_WindowStyle,							//DWORD dwStyle
 		m_WindowExStyle							//DWORD dwExStyle
-	); CHECK_HR(__LINE__);
+	);
 
 	bresult = SetWindowPos (
 		m_Handle,								//HWND hWnd
@@ -483,7 +456,7 @@ VOID CDXWindow::SetState(DXWINDOW_STATE State) {
 				HRESULT hr = S_OK;
 
 				//Leave exclusive fullscreen mode
-				hr = m_SwapChainController.ToggleFullscreen(); CHECK_HR(__LINE__);
+				m_SwapChainController.ToggleFullscreen();
 
 				//Enter non-exclusive fullscreen mode
 				if (State == DXWINDOW_STATE_FULLSCREEN_WINDOW) {
@@ -515,17 +488,8 @@ VOID CDXWindow::SetWindowResolution(WORD Width, WORD Height) {
 
 //Retrieves the desktop area of the output the window occupies
 VOID CDXWindow::GetDesktopArea(RECT& DesktopArea) {
-	HRESULT hr = S_OK;
-
 	Output* output = m_OutputEnum.SearchOutput(m_Handle);
-
-	if (output == nullptr) {
-		m_Callback->OnObjectFailure(L"CDXWindow.cpp", __LINE__, E_FAIL);
-	}
-
-	hr = output->GetDesktopArea (
-		&DesktopArea
-	); CHECK_HR(__LINE__);
+	output->GetDesktopArea(&DesktopArea);
 }
 
 //React to a change in resolution by centering the window

@@ -40,19 +40,19 @@ public:
 	SwapChainController(CDXWindow& Window, OutputEnum& Enum);
 
 	/* Creates the swap chain and initializes references. */
-	HRESULT Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback, HWND Handle);
+	VOID Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback, HWND Handle);
 
 	/* Toggles between exclusive fullscreen. */
-	HRESULT ToggleFullscreen();
+	VOID ToggleFullscreen();
 
 	/* Resizes the buffers in response to a target or window resize. */
-	HRESULT ResizeBuffers();
+	VOID ResizeBuffers();
 
 	/* Flips the back and front buffers. */
-	HRESULT Present(UINT SyncInterval, UINT Flags);
+	VOID Present(UINT SyncInterval, UINT Flags);
 
 	/* Retrieves the back buffer in the requested interface. */
-	HRESULT GetBackBuffer(REFIID rIID, void** ppvBackBuffer);
+	VOID GetBackBuffer(REFIID rIID, void** ppvBackBuffer);
 
 private:
 	CDXWindow& m_Window; //Reference to the window object
@@ -74,5 +74,5 @@ private:
 	}
 
 	/* Creates the swap chain. */
-	HRESULT CreateSwapChain(CComPtr<IUnknown> DeviceUnk);
+	VOID CreateSwapChain(CComPtr<IUnknown> DeviceUnk);
 };

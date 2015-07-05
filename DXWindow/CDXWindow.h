@@ -111,7 +111,7 @@ public:
 	LRESULT WindowProcess(UINT Message, WPARAM wParam, LPARAM lParam);
 
 	/* Creates all objects and sets up the window/swap chain. */
-	HRESULT Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWindowCallback* pDXWindowCallback);
+	VOID Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWindowCallback* pDXWindowCallback);
 
 private:
 	long m_RefCount; //The reference count

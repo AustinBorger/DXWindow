@@ -32,13 +32,11 @@ m_Window(Window) {
 }
 
 //Initializes the reference to the callback object
-HRESULT GamepadMessageDispatcher::Initialize(CComPtr<IDXWindowCallback> Callback) {
+VOID GamepadMessageDispatcher::Initialize(CComPtr<IDXWindowCallback> Callback) {
 	m_Callback = Callback;
-
-	return S_OK;
 }
 
-void GamepadMessageDispatcher::CheckGamepads() {
+VOID GamepadMessageDispatcher::CheckGamepads() {
 	DWORD err = ERROR_SUCCESS;
 	XINPUT_STATE xstate;
 

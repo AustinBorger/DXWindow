@@ -23,8 +23,8 @@
 #include "Output.h"
 #include <vector>
 
-#define CHECK_HR() if (FAILED(hr)) return hr
-#define CHECK_BRESULT() if (bresult == FALSE) return HRESULT_FROM_WIN32(GetLastError())
+#define CHECK_HR(Line) if (FAILED(hr)) m_Callback->OnObjectFailure(L"Output.cpp", Line, hr)
+#define CHECK_BRESULT(Line) if (bresult == FALSE) { HRESULT hr = HRESULT_FROM_WIN32(GetLastError()); if (FAILED(hr)) m_Callback->OnObjectFailure(L"Output.cpp", Line, hr); }
 
 template <typename T>
 static void Zero(T& t) {
@@ -39,19 +39,17 @@ Output::Output() {
 }
 
 //Initialize the description structure and DXGIOutput object reference
-HRESULT Output::Initialize(CComPtr<IDXGIOutput> obj) {
+VOID Output::Initialize(CComPtr<IDXGIOutput> obj, CComPtr<IDXWindowCallback> Callback) {
 	HRESULT hr;
 
 	m_Obj = obj;
 
 	hr = m_Obj->GetDesc (
 		&m_Desc
-	); CHECK_HR();
-
-	return S_OK;
+	); CHECK_HR(__LINE__);
 }
 
-HRESULT Output::GetWindowCenter(UINT Width, UINT Height, RECT* pRect, DWORD dwStyle, DWORD dwExStyle) {
+VOID Output::GetWindowCenter(UINT Width, UINT Height, RECT* pRect, DWORD dwStyle, DWORD dwExStyle) {
 	RECT center;
 	MONITORINFOEXW monitor_info;
 	RECT& work = monitor_info.rcWork;
@@ -63,8 +61,10 @@ HRESULT Output::GetWindowCenter(UINT Width, UINT Height, RECT* pRect, DWORD dwSt
 
 	monitor_info.cbSize = sizeof(monitor_info);
 
-	bresult = GetMonitorInfoW(m_Desc.Monitor, &monitor_info);
-	CHECK_BRESULT();
+	bresult = GetMonitorInfoW (
+		m_Desc.Monitor,
+		&monitor_info
+	); CHECK_BRESULT(__LINE__);
 
 	work_width = work.right - work.left;
 	work_height = work.bottom - work.top;
@@ -81,14 +81,12 @@ HRESULT Output::GetWindowCenter(UINT Width, UINT Height, RECT* pRect, DWORD dwSt
 		dwStyle,
 		FALSE,
 		dwExStyle
-	); CHECK_BRESULT();
+	); CHECK_BRESULT(__LINE__);
 
 	*pRect = center;
-
-	return S_OK;
 }
 
-HRESULT Output::GetWorkArea(RECT* pRect) {
+VOID Output::GetWorkArea(RECT* pRect) {
 	MONITORINFOEXW m;
 	BOOL bresult;
 
@@ -99,14 +97,12 @@ HRESULT Output::GetWorkArea(RECT* pRect) {
 	bresult = GetMonitorInfoW (
 		m_Desc.Monitor,
 		&m
-	); CHECK_BRESULT();
+	); CHECK_BRESULT(__LINE__);
 
 	*pRect = m.rcWork;
-
-	return S_OK;
 }
 
-HRESULT Output::GetDesktopArea(RECT* pRect) {
+VOID Output::GetDesktopArea(RECT* pRect) {
 	MONITORINFOEXW m;
 	BOOL bresult;
 
@@ -117,9 +113,7 @@ HRESULT Output::GetDesktopArea(RECT* pRect) {
 	bresult = GetMonitorInfoW (
 		m_Desc.Monitor,
 		&m
-	); CHECK_BRESULT();
+	); CHECK_BRESULT(__LINE__);
 
 	*pRect = m.rcMonitor;
-
-	return S_OK;
 }

@@ -28,6 +28,7 @@
 #include <dxgi.h>
 #include <vector>
 
+#include "DXWindow.h"
 #include "Output.h"
 #include "QueryInterface.h"
 
@@ -38,16 +39,14 @@ public:
 
 	~OutputEnum();
 
-	/* Populates the output list. */
-	HRESULT Initialize(CComPtr<IUnknown> DeviceUnk);
+	/* Populates the output list and initializes callback reference. */
+	VOID Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback);
 
 	/* Searches the output list for the output that the window occupies. */
 	Output* SearchOutput(HWND Handle);
 
 	/* Returns the primary output of the adapter. */
-	Output* PrimaryOutput() {
-		return &m_Outputs.front();
-	}
+	Output* PrimaryOutput();
 
 	/* Returns the adapter. */
 	CComPtr<IDXGIAdapter> GetAdapter() {
@@ -57,4 +56,5 @@ public:
 private:
 	std::vector<Output> m_Outputs; //The output list
 	CComPtr<IDXGIAdapter> m_Adapter; //The adapter
+	CComPtr<IDXWindowCallback> m_Callback; //The application-supplied callback
 };

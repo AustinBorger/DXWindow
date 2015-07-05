@@ -36,9 +36,14 @@ HRESULT DXWindowCreateWindow (
 ) {
 	HRESULT hr = S_OK;
 
+	if (pDesc == nullptr || pDevice == nullptr ||
+		pDXWindowCallback == nullptr || ppDXWindow == nullptr) {
+		return E_POINTER;
+	}
+
 	CComPtr<CDXWindow> Window = new CDXWindow();
 
-	hr = Window->Initialize(*pDesc, pDevice, pDXWindowCallback);
+	Window->Initialize(*pDesc, pDevice, pDXWindowCallback);
 
 	if (FAILED(hr)) {
 		*ppDXWindow = nullptr;
