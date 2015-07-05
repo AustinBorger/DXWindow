@@ -2,6 +2,7 @@
 
 #include "DXWindow.h"
 #include <dxgi.h>
+#include <string>
 
 #include "WindowMessageDispatcher.h"
 #include "GamepadMessageDispatcher.h"
@@ -45,9 +46,13 @@ public:
 
 	VOID STDMETHODCALLTYPE Present(UINT SyncInterval, UINT Flags) final;
 
-	WORD STDMETHODCALLTYPE GetWindowWidth() final;
+	WORD STDMETHODCALLTYPE GetWindowWidth() final {
+		return m_WindowWidth;
+	}
 
-	WORD STDMETHODCALLTYPE GetWindowHeight() final;
+	WORD STDMETHODCALLTYPE GetWindowHeight() final {
+		return m_WindowHeight;
+	}
 
 	VOID STDMETHODCALLTYPE SetWindowResolution(WORD Width, WORD Height) final;
 
@@ -99,9 +104,14 @@ private:
 	long m_RefCount;
 
 	HWND m_Handle; //The window handle
+	HINSTANCE m_Instance;
+	OutputWatcher m_OutputWatcher;
 	WindowMessageDispatcher m_WindowMessageDispatcher; //Dispatches window messages to the callback
 	GamepadMessageDispatcher m_GamepadMessageDispatcher; //Dispatches gamepad messages to the callback
 	SwapChainController m_SwapChainController;
+
+	WORD m_WindowWidth;
+	WORD m_WindowHeight;
 
 	CComPtr<IDXWindowCallback> m_Callback;
 
@@ -113,4 +123,11 @@ private:
 	DWORD m_WindowExStyle;
 
 	BOOL m_AllowToggle;
+	BOOL m_InFocus;
+
+	std::wstring m_ClassName;
+
+	VOID RegisterWindowClass(const DXWINDOW_DESC& Desc);
+
+	VOID MakeWindow(const DXWINDOW_DESC& Desc);
 };

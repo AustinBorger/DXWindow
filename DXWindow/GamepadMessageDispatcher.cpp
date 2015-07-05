@@ -1,7 +1,7 @@
 #include "GamepadMessageDispatcher.h"
 #include "CDXWindow.h"
 
-#define CHECK_ERR() if (err != ERROR_SUCCESS) m_Callback->OnObjectFailure(HRESULT_FROM_WIN32(err)); return
+#define CHECK_ERR(Line) if (err != ERROR_SUCCESS) m_Callback->OnObjectFailure(L"GamepadMessageDispatcher.cpp", Line, HRESULT_FROM_WIN32(err)); return
 
 GamepadMessageDispatcher::GamepadMessageDispatcher(CDXWindow& Window) :
 m_Window(Window) {
@@ -27,7 +27,7 @@ void GamepadMessageDispatcher::CheckGamepads() {
 		if (err == ERROR_DEVICE_NOT_CONNECTED) {
 			continue;
 		} else {
-			CHECK_ERR();
+			CHECK_ERR(__LINE__);
 		}
 
 		if (xstate.dwPacketNumber > m_PrevState[i].dwPacketNumber) {

@@ -2,6 +2,7 @@
 #include "CDXWindow.h"
 
 #define CHECK_HR() if (FAILED(hr)) return hr
+#define CHECK_BRESULT() if (bresult == FALSE) return HRESULT_FROM_WIN32(GetLastError())
 
 template <typename T>
 static void Zero(T& t) {
@@ -10,12 +11,13 @@ static void Zero(T& t) {
 
 static const DXGI_FORMAT GLOBAL_DXGI_FORMAT = DXGI_FORMAT_B8G8R8A8_UNORM;
 
+SwapChainController::SwapChainController(CDXWindow& Window, OutputWatcher& Watcher) :
+m_Window(Window),
+m_OutputWatcher(Watcher)
+{ }
+
 HRESULT SwapChainController::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback, HWND Handle) {
 	HRESULT hr = S_OK;
-
-	hr = m_OutputWatcher.Initialize (
-		DeviceUnk
-	); CHECK_HR();
 
 	m_Callback = Callback;
 	m_Handle = Handle;
@@ -29,14 +31,22 @@ HRESULT SwapChainController::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDX
 
 HRESULT SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 	HRESULT hr = S_OK;
+	BOOL bresult = TRUE;
 
 	DXGI_SWAP_CHAIN_DESC desc; Zero(desc);
 	CComPtr<IDXGIFactory> factory;
 
+	RECT WindowRect;
+
+	bresult = GetWindowRect (
+		m_Handle,
+		&WindowRect
+	); CHECK_BRESULT();
+
 	desc.BufferCount = 1;
 	desc.BufferDesc.Format = GLOBAL_DXGI_FORMAT;
-	desc.BufferDesc.Width = 0;
-	desc.BufferDesc.Height = 0;
+	desc.BufferDesc.Width = WindowRect.right - WindowRect.left;
+	desc.BufferDesc.Height = WindowRect.bottom - WindowRect.top;
 	desc.BufferDesc.RefreshRate.Numerator = 0;
 	desc.BufferDesc.RefreshRate.Denominator = 0;
 	desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
@@ -69,6 +79,10 @@ HRESULT SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 
 HRESULT SwapChainController::Present(UINT SyncInterval, UINT Flags) {
 	return m_SwapChain->Present(SyncInterval, Flags);
+}
+
+HRESULT SwapChainController::GetBackBuffer(REFIID rIID, void** ppvBackBuffer) {
+	return m_SwapChain->GetBuffer(0, rIID, ppvBackBuffer);
 }
 
 HRESULT SwapChainController::ToggleFullscreen() {

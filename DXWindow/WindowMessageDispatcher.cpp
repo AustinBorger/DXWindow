@@ -53,6 +53,10 @@ LRESULT CALLBACK WindowMessageDispatcher::StaticWindowProcess(HWND Handle, UINT 
 	WindowMessageDispatcher* l_Dispatcher = g_WindowMap[Handle];
 	g_WindowMapMutex.unlock();
 
+	if (l_Dispatcher == nullptr) {
+		return DefWindowProcW(Handle, Message, wParam, lParam);
+	}
+
 	return l_Dispatcher->WindowProcess(Message, wParam, lParam);
 }
 

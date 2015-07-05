@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Xinput.h>
 #include <Windows.h>
+#include <Xinput.h>
 #include <comdef.h>
 #include <atlbase.h>
 #include "DXWindow.h"

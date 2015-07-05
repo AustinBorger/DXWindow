@@ -5,6 +5,11 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DXWindow", "DXWindow\DXWindow.vcxproj", "{B7B189FB-D4AC-463B-91C8-CD954BC8BF06}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DXWindowTest", "DXWindowTest\DXWindowTest.vcxproj", "{707932F4-AA6C-4B02-824F-8109DF1C5DA9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B7B189FB-D4AC-463B-91C8-CD954BC8BF06} = {B7B189FB-D4AC-463B-91C8-CD954BC8BF06}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -15,6 +20,10 @@ Global
 		{B7B189FB-D4AC-463B-91C8-CD954BC8BF06}.Debug|Win32.Build.0 = Debug|Win32
 		{B7B189FB-D4AC-463B-91C8-CD954BC8BF06}.Release|Win32.ActiveCfg = Release|Win32
 		{B7B189FB-D4AC-463B-91C8-CD954BC8BF06}.Release|Win32.Build.0 = Release|Win32
+		{707932F4-AA6C-4B02-824F-8109DF1C5DA9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{707932F4-AA6C-4B02-824F-8109DF1C5DA9}.Debug|Win32.Build.0 = Debug|Win32
+		{707932F4-AA6C-4B02-824F-8109DF1C5DA9}.Release|Win32.ActiveCfg = Release|Win32
+		{707932F4-AA6C-4B02-824F-8109DF1C5DA9}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
