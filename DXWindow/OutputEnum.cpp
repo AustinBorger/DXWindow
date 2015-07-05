@@ -23,10 +23,46 @@ HRESULT OutputEnum::Initialize(CComPtr<IUnknown> DeviceUnk) {
 	); CHECK_HR();
 
 	//Populate the output list
-	hr = Output::InitializeList (
-		m_Adapter,
-		m_Outputs
-	); CHECK_HR();
+	UINT index = 0;
+	CComPtr<IDXGIOutput> output;
+
+	while (true) {
+		hr = m_Adapter->EnumOutputs (
+			index,
+			&output
+		);
+
+		if (hr == DXGI_ERROR_NOT_FOUND) {
+			break;
+		} else {
+			CHECK_HR();
+		}
+
+		m_Outputs.push_back(Output());
+
+		hr = m_Outputs.back().Initialize(output);
+
+		CHECK_HR();
+
+		output.Release();
+
+		index++;
+	}
 
 	return S_OK;
+}
+
+Output* OutputEnum::SearchOutput(HWND Handle) {
+	HMONITOR monitor = MonitorFromWindow (
+		Handle,
+		MONITOR_DEFAULTTONEAREST
+	);
+
+	for (Output& output : m_Outputs) {
+		if (output.GetMonitor() == monitor) {
+			return &output;
+		}
+	}
+
+	return nullptr;
 }

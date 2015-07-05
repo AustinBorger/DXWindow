@@ -20,13 +20,11 @@ public:
 	HRESULT Initialize(CComPtr<IUnknown> DeviceUnk);
 
 	/* Searches the output list for the output that the window occupies. */
-	Output* SearchOutput(HWND Handle) {
-		return Output::SearchOutput(Handle, m_Outputs);
-	}
+	Output* SearchOutput(HWND Handle);
 
 	/* Returns the primary output of the adapter. */
 	Output* PrimaryOutput() {
-		return Output::PrimaryOutput(m_Outputs);
+		return &m_Outputs.front();
 	}
 
 	/* Returns the adapter. */

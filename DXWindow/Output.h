@@ -17,17 +17,17 @@ public:
 
 	HRESULT GetDesktopArea(RECT* pRect);
 
-	HMONITOR GetMonitor();
+	HMONITOR GetMonitor() {
+		return m_Desc.Monitor;
+	}
 
-	LPCWSTR GetName();
+	LPCWSTR GetName() {
+		return m_Desc.DeviceName;
+	}
 
-	CComPtr<IDXGIOutput> GetObj();
-
-	static HRESULT InitializeList(CComPtr<IDXGIAdapter> adapter, std::vector<Output>& Outputs);
-
-	static Output* SearchOutput(HWND Handle, std::vector<Output>& Outputs);
-
-	static Output* PrimaryOutput(std::vector<Output>& Outputs);
+	CComPtr<IDXGIOutput> GetObj() {
+		return m_Obj;
+	}
 
 private:
 	CComPtr<IDXGIOutput> m_Obj;
