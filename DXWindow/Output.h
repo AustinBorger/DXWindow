@@ -5,6 +5,8 @@
 #include <atlbase.h>
 #include <vector>
 
+/* This class represents a DXGI output and contains several convenience methods
+** for translating DXGI stuff into regular winapi stuff. */
 class Output final {
 public:
 	HRESULT Initialize(CComPtr<IDXGIOutput> obj);
