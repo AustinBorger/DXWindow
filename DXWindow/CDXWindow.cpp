@@ -528,6 +528,13 @@ VOID CDXWindow::GetDesktopArea(RECT& DesktopArea) {
 	); CHECK_HR(__LINE__);
 }
 
+//React to a change in resolution by centering the window
 VOID CDXWindow::DisplayChange() {
-
+	if (m_State == DXWINDOW_STATE_WINDOWED || m_State == DXWINDOW_STATE_BORDERLESS) {
+		CenterWindow();
+		CenterCursor();
+	} else if (m_State == DXWINDOW_STATE_FULLSCREEN_WINDOW) {
+		FullscreenWindow();
+		CenterCursor();
+	}
 }
