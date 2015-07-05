@@ -71,7 +71,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CDXWindow.h" />
-    <ClInclude Include="OutputWatcher.h" />
+    <ClInclude Include="OutputEnum.h" />
     <ClInclude Include="DXWindow.h" />
     <ClInclude Include="GamepadMessageDispatcher.h" />
     <ClInclude Include="Output.h" />
@@ -81,7 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CDXWindow.cpp" />
-    <ClCompile Include="OutputWatcher.cpp" />
+    <ClCompile Include="OutputEnum.cpp" />
     <ClCompile Include="DXWindow.cpp" />
     <ClCompile Include="GamepadMessageDispatcher.cpp" />
     <ClCompile Include="Output.cpp" />

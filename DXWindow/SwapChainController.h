@@ -7,13 +7,13 @@
 
 #include "DXWindow.h"
 #include "Output.h"
-#include "OutputWatcher.h"
+#include "OutputEnum.h"
 
 class CDXWindow;
 
 class SwapChainController {
 public:
-	SwapChainController(CDXWindow& Window, OutputWatcher& Watcher);
+	SwapChainController(CDXWindow& Window, OutputEnum& Enum);
 
 	HRESULT Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback, HWND Handle);
 
@@ -32,7 +32,7 @@ private:
 	CComPtr<IDXWindowCallback> m_Callback;
 	CComPtr<IDXGISwapChain> m_SwapChain;
 	HWND m_Handle;
-	OutputWatcher& m_OutputWatcher;
+	OutputEnum& m_OutputEnum;
 
 	BOOL IsFullscreen() {
 		BOOL Fullscreen;

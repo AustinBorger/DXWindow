@@ -8,7 +8,7 @@
     <ClInclude Include="QueryInterface.h" />
     <ClInclude Include="SwapChainController.h" />
     <ClInclude Include="Output.h" />
-    <ClInclude Include="OutputWatcher.h" />
+    <ClInclude Include="OutputEnum.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WindowMessageDispatcher.cpp" />
@@ -17,6 +17,6 @@
     <ClCompile Include="CDXWindow.cpp" />
     <ClCompile Include="SwapChainController.cpp" />
     <ClCompile Include="Output.cpp" />
-    <ClCompile Include="OutputWatcher.cpp" />
+    <ClCompile Include="OutputEnum.cpp" />
   </ItemGroup>
 </Project>

@@ -11,9 +11,9 @@ static void Zero(T& t) {
 
 static const DXGI_FORMAT GLOBAL_DXGI_FORMAT = DXGI_FORMAT_B8G8R8A8_UNORM;
 
-SwapChainController::SwapChainController(CDXWindow& Window, OutputWatcher& Watcher) :
+SwapChainController::SwapChainController(CDXWindow& Window, OutputEnum& Enum) :
 m_Window(Window),
-m_OutputWatcher(Watcher)
+m_OutputEnum(Enum)
 { }
 
 HRESULT SwapChainController::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback, HWND Handle) {
@@ -59,7 +59,7 @@ HRESULT SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 	desc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
 	desc.Windowed = TRUE;
 
-	hr = m_OutputWatcher.GetAdapter()->GetParent (
+	hr = m_OutputEnum.GetAdapter()->GetParent (
 		IID_PPV_ARGS(&factory)
 	); CHECK_HR();
 
@@ -93,7 +93,7 @@ HRESULT SwapChainController::ToggleFullscreen() {
 	if (Fullscreen == FALSE) {
 		RECT DesktopArea;
 
-		Output* output = m_OutputWatcher.SearchOutput(m_Handle);
+		Output* output = m_OutputEnum.SearchOutput(m_Handle);
 
 		if (output == nullptr) {
 			return E_FAIL;
@@ -150,7 +150,7 @@ HRESULT SwapChainController::ResizeBuffers() {
 HRESULT SwapChainController::GetDesktopArea(RECT& DesktopArea) {
 	HRESULT hr = S_OK;
 
-	Output* output = m_OutputWatcher.SearchOutput(m_Handle);
+	Output* output = m_OutputEnum.SearchOutput(m_Handle);
 
 	if (output == nullptr) {
 		return E_FAIL;

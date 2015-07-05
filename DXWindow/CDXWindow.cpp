@@ -28,7 +28,7 @@ m_WindowExStyle(WINDOWED_EX_STYLE),
 m_AllowToggle(TRUE),
 m_WindowMessageDispatcher(*this),
 m_GamepadMessageDispatcher(*this),
-m_SwapChainController(*this, m_OutputWatcher)
+m_SwapChainController(*this, m_OutputEnum)
 { }
 
 CDXWindow::~CDXWindow() {
@@ -47,7 +47,7 @@ HRESULT CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXW
 	m_WindowWidth = Desc.Width;
 	m_WindowHeight = Desc.Height;
 
-	hr = m_OutputWatcher.Initialize(DeviceUnk);
+	hr = m_OutputEnum.Initialize(DeviceUnk);
 
 	if (FAILED(hr)) {
 		return hr;
@@ -299,7 +299,7 @@ VOID CDXWindow::MakeWindow(const DXWINDOW_DESC& Desc) {
 	HRESULT hr = S_OK;
 	DWORD err = ERROR_SUCCESS;
 
-	Output* output = m_OutputWatcher.PrimaryOutput();
+	Output* output = m_OutputEnum.PrimaryOutput();
 
 	if (output == nullptr) {
 		m_Callback->OnObjectFailure(L"CDXWindow.cpp", __LINE__, E_FAIL);
@@ -373,7 +373,7 @@ VOID CDXWindow::CenterWindow() {
 	BOOL bresult = TRUE;
 	HRESULT hr = S_OK;
 
-	Output* output = m_OutputWatcher.SearchOutput(m_Handle);
+	Output* output = m_OutputEnum.SearchOutput(m_Handle);
 
 	if (output == nullptr) {
 		m_Callback->OnObjectFailure(L"CDXWindow.cpp", __LINE__, E_FAIL);
