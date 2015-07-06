@@ -88,6 +88,10 @@ int main() {
 				Window->SetState(DXWINDOW_STATE_FULLSCREEN_WINDOW);
 			} else if (wParam == VK_F4) {
 				Window->SetState(DXWINDOW_STATE_FULLSCREEN);
+			} else if (wParam == VK_F5) {
+				Window->SetWindowResolution(640, 640);
+			} else if (wParam == VK_F6) {
+				Window->SetWindowResolution(1280, 720);
 			}
 		}
 
