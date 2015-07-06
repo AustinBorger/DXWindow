@@ -50,6 +50,8 @@ m_FullscreenState(DXWINDOW_FULLSCREEN_STATE_FULLSCREEN_WINDOW),
 m_WindowState(DXWINDOW_WINDOW_STATE_WINDOWED),
 m_WindowStyle(WINDOWED_STYLE),
 m_WindowExStyle(WINDOWED_EX_STYLE),
+m_Closing(FALSE),
+m_InFocus(FALSE),
 m_AllowToggle(TRUE),
 m_WindowMessageDispatcher(*this),
 m_GamepadMessageDispatcher(*this),
@@ -97,10 +99,26 @@ VOID CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWind
 	//Initialize the swap chain controller
 	m_SwapChainController.Initialize(DeviceUnk, m_Callback, m_Handle);
 
-	//Initialize the state before calling SetState()
+	//Initialize the state
 	DXWINDOW_STATE State = Desc.InitFullscreen != FALSE ? (DXWINDOW_STATE)(Desc.FullscreenState) : (DXWINDOW_STATE)(Desc.WindowState);
 
-	SetState(State);
+	if (State != m_State) {
+		if (State == DXWINDOW_STATE_FULLSCREEN) {
+			m_SwapChainController.ToggleFullscreen();
+			CenterCursor();
+		} else if (State == DXWINDOW_STATE_FULLSCREEN_WINDOW) {
+			FullscreenWindow();
+			CenterCursor();
+		} else if (State == DXWINDOW_STATE_BORDERLESS) {
+			m_State = State;
+			UpdateWindowState();
+			CenterCursor();
+		}
+	}
+
+	m_State = State;
+
+	m_Callback->OnBackBufferCreate(this);
 }
 
 VOID CDXWindow::PumpMessages() {
@@ -154,21 +172,27 @@ LRESULT CDXWindow::WindowProcess(UINT Message, WPARAM wParam, LPARAM lParam) {
 
 		case WM_KEYDOWN: {
 			if (wParam == VK_F11 && m_AllowToggle != FALSE) {
+				m_Callback->OnBackBufferRelease(this);
 				ToggleFullscreen();
+				m_Callback->OnBackBufferCreate(this);
 			}
 		} return 0;
 
 		case WM_SIZE: {
 			m_SwapChainController.ResizeBuffers();
-		} return S_OK;
+		} return 0;
 
 		case WM_KILLFOCUS: {
 			KillFocus();
-		} return S_OK;
+		} return 0;
 
 		case WM_SETFOCUS: {
 			SetFocus();
-		} return S_OK;
+		} return 0;
+
+		case WM_CLOSE: {
+			m_Closing = TRUE;
+		} break;
 	}
 
 	return DefWindowProcW(m_Handle, Message, wParam, lParam);
@@ -212,10 +236,8 @@ VOID CDXWindow::UpdateWindowState() {
 		m_WindowExStyle
 	); CHECK_BRESULT(__LINE__);
 
-	//Center the window and cursor
+	//Center the window
 	CenterWindow();
-
-	CenterCursor();
 }
 
 VOID CDXWindow::ToggleFullscreen() {
@@ -231,6 +253,8 @@ VOID CDXWindow::ToggleFullscreen() {
 		m_State = (DXWINDOW_STATE)(m_WindowState);
 
 		UpdateWindowState();
+
+		CenterCursor();
 	} else {
 		//I'm in windowed state now, switch to fullscreen
 		if (m_FullscreenState == DXWINDOW_FULLSCREEN_STATE_FULLSCREEN) {
@@ -377,6 +401,8 @@ VOID CDXWindow::MakeWindow(const DXWINDOW_DESC& Desc) {
 		err = GetLastError();
 		CHECK_ERR(__LINE__);
 	}
+
+	m_InFocus = TRUE;
 }
 
 VOID CDXWindow::KillFocus() {
@@ -384,9 +410,15 @@ VOID CDXWindow::KillFocus() {
 
 	//If the window is not in focus - say CTRL-ALT-DEL is pressed,
 	//but the window was in fullscreen, make it enter its windowed
-	//state (otherwise the result can get ugly).
-	if (m_State == DXWINDOW_STATE_FULLSCREEN || m_State == DXWINDOW_STATE_FULLSCREEN_WINDOW) {
-		ToggleFullscreen();
+	//state (otherwise the result can get ugly).  We have to make sure
+	//this isn't happening while the window is closing, though, otherwise
+	//SetWindowPos() gives an error
+	if (m_Closing == FALSE) {
+		if (m_State == DXWINDOW_STATE_FULLSCREEN || m_State == DXWINDOW_STATE_FULLSCREEN_WINDOW) {
+			m_Callback->OnBackBufferRelease(this);
+			ToggleFullscreen();
+			m_Callback->OnBackBufferCreate(this);
+		}
 	}
 }
 
@@ -447,42 +479,65 @@ VOID CDXWindow::CenterWindow() {
 
 VOID CDXWindow::SetState(DXWINDOW_STATE State) {
 	if (State != m_State) {
+		if (State == DXWINDOW_STATE_FULLSCREEN) {
+			m_Callback->OnBackBufferRelease(this);
+			m_FullscreenState = DXWINDOW_FULLSCREEN_STATE_FULLSCREEN;
+			m_State = DXWINDOW_STATE_FULLSCREEN;
+			m_SwapChainController.ToggleFullscreen();
+			m_Callback->OnBackBufferCreate(this);
+			return;
+		}
+
 		if (m_State == DXWINDOW_STATE_FULLSCREEN || m_State == DXWINDOW_STATE_FULLSCREEN_WINDOW) { //We're in fullscreen state now
-			m_State = State;
+			m_Callback->OnBackBufferRelease(this);
 
 			if (State == DXWINDOW_STATE_WINDOWED || State == DXWINDOW_STATE_BORDERLESS) { //Go to a windowed state
+				m_WindowState = (DXWINDOW_WINDOW_STATE)(State);
 				ToggleFullscreen(); //Toggle fullscreen handles distinctions between windowed states
-			} else { //Enter fullscreen window instead
-				HRESULT hr = S_OK;
-
+			} else if (State == DXWINDOW_STATE_FULLSCREEN_WINDOW) { //Enter fullscreen window instead
 				//Leave exclusive fullscreen mode
 				m_SwapChainController.ToggleFullscreen();
 
 				//Enter non-exclusive fullscreen mode
-				if (State == DXWINDOW_STATE_FULLSCREEN_WINDOW) {
-					FullscreenWindow();
-				}
+				FullscreenWindow();
+
+				m_State = DXWINDOW_STATE_FULLSCREEN_WINDOW;
+				m_FullscreenState = DXWINDOW_FULLSCREEN_STATE_FULLSCREEN_WINDOW;
 			}
-		} else { //It's a windowed state
-			if (State == DXWINDOW_STATE_FULLSCREEN || State == DXWINDOW_STATE_FULLSCREEN_WINDOW) {
-				ToggleFullscreen();
-				m_State = State; //Has to be set after calling ToggleFullscreen()
+
+			m_Callback->OnBackBufferCreate(this);
+		} else { //We're in a windowed state now
+			if (State == DXWINDOW_STATE_FULLSCREEN_WINDOW) { //Go to fullscreen window
+				m_Callback->OnBackBufferRelease(this);
+				FullscreenWindow();
+				m_FullscreenState = DXWINDOW_FULLSCREEN_STATE_FULLSCREEN_WINDOW;
+				m_State = DXWINDOW_STATE_FULLSCREEN_WINDOW;
+				m_Callback->OnBackBufferCreate(this);
 			} else {
+				m_Callback->OnBackBufferRelease(this);
 				m_State = State; //Has to be set before calling UpdateWindowState()
+				m_WindowState = (DXWINDOW_WINDOW_STATE)(State);
 				UpdateWindowState();
+				CenterCursor();
+				m_Callback->OnBackBufferCreate(this);
 			}
 		}
 	}
 }
 
+//Changes the resolution of the window
 VOID CDXWindow::SetWindowResolution(WORD Width, WORD Height) {
-	m_WindowWidth = Width;
-	m_WindowHeight = Height;
+	if (Width != m_WindowWidth || Height != m_WindowHeight) {
+		m_WindowWidth = Width;
+		m_WindowHeight = Height;
 
-	if (m_State == DXWINDOW_STATE_WINDOWED || m_State == DXWINDOW_STATE_BORDERLESS) {
-		CenterWindow();
-
-		CenterCursor();
+		//If we're in windowed mode, make the change immediately
+		if (m_State == DXWINDOW_STATE_WINDOWED || m_State == DXWINDOW_STATE_BORDERLESS) {
+			m_Callback->OnBackBufferRelease(this);
+			CenterWindow();
+			CenterCursor();
+			m_Callback->OnBackBufferCreate(this);
+		}
 	}
 }
 
@@ -498,7 +553,9 @@ VOID CDXWindow::DisplayChange() {
 		CenterWindow();
 		CenterCursor();
 	} else if (m_State == DXWINDOW_STATE_FULLSCREEN_WINDOW) {
+		m_Callback->OnBackBufferRelease(this);
 		FullscreenWindow();
 		CenterCursor();
+		m_Callback->OnBackBufferCreate(this);
 	}
 }

@@ -135,6 +135,7 @@ private:
 	DWORD m_WindowStyle; //The style of the window
 	DWORD m_WindowExStyle; //The ex style of the window
 
+	BOOL m_Closing; //Closing flag
 	BOOL m_AllowToggle; //Toggle flag
 	BOOL m_InFocus; //Indicates whether or not the window is currently in focus
 

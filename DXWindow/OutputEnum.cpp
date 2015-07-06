@@ -30,8 +30,6 @@ OutputEnum::OutputEnum()
 OutputEnum::~OutputEnum() 
 { }
 
-#include <iostream>
-
 VOID OutputEnum::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback) {
 	HRESULT hr = S_OK;
 	CComPtr<IDXGIDevice> DxgiDevice;

@@ -79,7 +79,20 @@ int main() {
 			run = false;
 		}
 
+		VOID STDMETHODCALLTYPE OnKeyDown(IDXWindow* Window, WPARAM wParam, LPARAM lParam) final {
+			if (wParam == VK_F1) {
+				Window->SetState(DXWINDOW_STATE_WINDOWED);
+			} else if (wParam == VK_F2) {
+				Window->SetState(DXWINDOW_STATE_BORDERLESS);
+			} else if (wParam == VK_F3) {
+				Window->SetState(DXWINDOW_STATE_FULLSCREEN_WINDOW);
+			} else if (wParam == VK_F4) {
+				Window->SetState(DXWINDOW_STATE_FULLSCREEN);
+			}
+		}
+
 		VOID STDMETHODCALLTYPE OnBackBufferRelease(IDXWindow* Window) final {
+			std::cout << "OnBackBufferRelease()" << std::endl;
 			BackBufTex.Release();
 			BackBufRTV.Release();
 		}
@@ -95,8 +108,8 @@ int main() {
 			viewport.MinDepth = 0.0f;
 			viewport.TopLeftX = 0.0f;
 			viewport.TopLeftY = 0.0f;
-			viewport.Width = Desc.Width;
-			viewport.Height = Desc.Height;
+			viewport.Width = (FLOAT)(Desc.Width);
+			viewport.Height = (FLOAT)(Desc.Height);
 
 			std::cout << "New back buffer: " << viewport.Width << ", " << viewport.Height << std::endl;
 

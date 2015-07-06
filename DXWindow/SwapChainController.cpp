@@ -108,8 +108,6 @@ VOID SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 		m_Handle,
 		DXGI_MWA_NO_WINDOW_CHANGES
 	); CHECK_HR(__LINE__);
-
-	m_Callback->OnBackBufferCreate(&m_Window);
 }
 
 //Flip the swap chain at the requested frame interval
@@ -138,7 +136,7 @@ VOID SwapChainController::ToggleFullscreen() {
 
 	BOOL Fullscreen = IsFullscreen();
 
-	if (Fullscreen == FALSE) {
+	if (Fullscreen == FALSE) { //Not in fullscreen currently, let's enter
 		RECT DesktopArea;
 
 		Output* output = m_OutputEnum.SearchOutput(m_Handle);
@@ -169,12 +167,9 @@ VOID SwapChainController::ToggleFullscreen() {
 	}
 }
 
+//Resizes the back buffer to the size of the front buffer
 VOID SwapChainController::ResizeBuffers() {
 	HRESULT hr = S_OK;
-
-	//The application should release all references to the back buffer,
-	//otherwise ResizeBuffers() will fail
-	m_Callback->OnBackBufferRelease(&m_Window);
 
 	hr = m_SwapChain->ResizeBuffers (
 		0,										//UINT BufferCount
@@ -183,8 +178,4 @@ VOID SwapChainController::ResizeBuffers() {
 		DXGI_FORMAT_UNKNOWN,					//DXGI_FORMAT NewFormat
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH	//UINT SwapChainFlags
 	); CHECK_HR(__LINE__);
-
-	//Now that the buffer is created, the application should now
-	//retrieve its reference to the back buffer again
-	m_Callback->OnBackBufferCreate(&m_Window);
 }
