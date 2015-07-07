@@ -32,6 +32,7 @@ Usage
 A window can be created in a four simple steps.
 
 #### 1. Create the window description
+
 `DXWINDOW_DESC` is a structure describing the initial setup of the window:
 
     struct DXWINDOW_DESC {
@@ -58,6 +59,7 @@ A window can be created in a four simple steps.
 - Finally, `AllowToggle` is a flag indicating whether or not the window should toggle between its window and fullscreen states when the user presses F11.
 
 #### 2. Design your callback class
+
 DXWindow uses a callback mechanism to relay events and errors to the application.  The `IDXWindowCallback` has a large number of methods, most of them self-explanatory.  There are a few important ones to note, however, that must be implemented in order for your application to work correctly:
 
     VOID OnObjectFailure(LPCWSTR File, UINT Line, HRESULT hr);
@@ -74,3 +76,16 @@ DXWindow uses a callback mechanism to relay events and errors to the application
 `OnWindowClose()` is sent when the window closes.  This is where you might decide to terminate your game loop.
 
 While all of the methods in `IDXWindowCallback` are pure, DXWindow provides a helper implementation class `CDXWindowCallback` that pre-defines all methods as empty (besides `OnObjectFailure()`, which is mandatory - kind of like a Java exception) so that you can choose the ones you want to implement and which ones you want to ignore.
+
+#### 3. Create the window
+
+A window can be created through `DXWindowCreateWindow()`:
+
+    HRESULT DXWindowCreateWindow (
+        const DXWINDOW_DESC* pDesc,
+        IUnknown* pDeviceUnk,
+        IDXWindowCallback* pDXWindowCallback,
+        IDXWindow** ppDXWindow
+    );
+    
+The use of this should be pretty self-explanatory.  `pDeviceUnk` is the device you want to use, which can be any device interface from Direct3D 10 onward.  None of these variables can be `NULL` - if any of them are `NULL`, then the function will return `E_POINTER`.
