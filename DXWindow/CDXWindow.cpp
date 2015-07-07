@@ -34,9 +34,13 @@ static const DWORD FULLSCREEN_WINDOW_EX_STYLE = WS_EX_TOPMOST | WS_EX_APPWINDOW;
 //Class name prefix
 static LPCWSTR WINDOW_CLASS_NAME = L"DXWindow";
 
-#define CHECK_HR(Line) if (FAILED(hr)) m_Callback->OnObjectFailure(L"CDXWindow.cpp", Line, hr)
-#define CHECK_ERR(Line) if (err != ERROR_SUCCESS) m_Callback->OnObjectFailure(L"CDXWindow.cpp", Line, HRESULT_FROM_WIN32(err))
-#define CHECK_BRESULT(Line) if (bresult == FALSE) { HRESULT hr = HRESULT_FROM_WIN32(GetLastError()); if (FAILED(hr)) m_Callback->OnObjectFailure(L"CDXWindow.cpp", Line, hr); }
+#define FILENAME L"CDXWindow.cpp"
+#define CHECK_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return; }
+#define RETURN_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return E_FAIL; }
+#define CHECK_ERR(Line) if (err != ERROR_SUCCESS) { m_Callback->OnObjectFailure(FILENAME, Line, HRESULT_FROM_WIN32(err)); return; }
+#define RETURN_ERR(Line) if (err != ERROR_SUCCESS) { m_Callback->OnObjectFailure(FILENAME, Line, HRESULT_FROM_WIN32(err)); return E_FAIL; }
+#define CHECK_BRESULT(Line) if (bresult == FALSE) { HRESULT hr = HRESULT_FROM_WIN32(GetLastError()); if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return; } }
+#define RETURN_BRESULT(Line) if (bresult == FALSE) { HRESULT hr = HRESULT_FROM_WIN32(GetLastError()); if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return E_FAIL; } }
 
 //Zero out data (except for refcount) and pass in references
 CDXWindow::CDXWindow() :
@@ -70,8 +74,9 @@ CDXWindow::~CDXWindow() {
 	}
 }
 
-VOID CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWindowCallback* pDXWindowCallback) {
+HRESULT CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWindowCallback* pDXWindowCallback) {
 	CComPtr<IUnknown> DeviceUnk = pDevice;
+	HRESULT hr = S_OK;
 
 	//Initialize variables based on description
 	m_Callback = pDXWindowCallback;
@@ -82,7 +87,8 @@ VOID CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWind
 	m_WindowHeight = Desc.Height;
 
 	//Initialize the output enumeration
-	m_OutputEnum.Initialize(DeviceUnk, m_Callback);
+	hr = m_OutputEnum.Initialize(DeviceUnk, m_Callback);
+	if (FAILED(hr)) return E_FAIL;
 
 	//Register the window class
 	RegisterWindowClass(Desc);
@@ -97,7 +103,8 @@ VOID CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWind
 	m_GamepadMessageDispatcher.Initialize(m_Callback);
 
 	//Initialize the swap chain controller
-	m_SwapChainController.Initialize(DeviceUnk, m_Callback, m_Handle);
+	hr = m_SwapChainController.Initialize(DeviceUnk, m_Callback, m_Handle);
+	if (FAILED(hr)) return E_FAIL;
 
 	//Initialize the state
 	DXWINDOW_STATE State = Desc.InitFullscreen != FALSE ? (DXWINDOW_STATE)(Desc.FullscreenState) : (DXWINDOW_STATE)(Desc.WindowState);
@@ -119,6 +126,8 @@ VOID CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWind
 	m_State = State;
 
 	m_Callback->OnBackBufferCreate(this);
+
+	return S_OK;
 }
 
 VOID CDXWindow::PumpMessages() {
@@ -310,7 +319,7 @@ VOID CDXWindow::FullscreenWindow() {
 	); CHECK_BRESULT(__LINE__);
 }
 
-VOID CDXWindow::RegisterWindowClass(const DXWINDOW_DESC& Desc) {
+HRESULT CDXWindow::RegisterWindowClass(const DXWINDOW_DESC& Desc) {
 	HRESULT hr = S_OK;
 	DWORD err = ERROR_SUCCESS;
 
@@ -358,20 +367,17 @@ VOID CDXWindow::RegisterWindowClass(const DXWINDOW_DESC& Desc) {
 
 	if (RegisterClassExW(&wc) == 0) {
 		err = GetLastError();
-		CHECK_ERR(__LINE__);
+		RETURN_ERR(__LINE__);
 	}
+
+	return S_OK;
 }
 
-VOID CDXWindow::MakeWindow(const DXWINDOW_DESC& Desc) {
+HRESULT CDXWindow::MakeWindow(const DXWINDOW_DESC& Desc) {
 	HRESULT hr = S_OK;
 	DWORD err = ERROR_SUCCESS;
 
 	Output* output = m_OutputEnum.PrimaryOutput();
-
-	if (output == nullptr) {
-		m_Callback->OnObjectFailure(L"CDXWindow.cpp", __LINE__, E_FAIL);
-	}
-
 	RECT WindowArea;
 
 	output->GetWindowCenter (
@@ -399,10 +405,12 @@ VOID CDXWindow::MakeWindow(const DXWINDOW_DESC& Desc) {
 
 	if (m_Handle == NULL) {
 		err = GetLastError();
-		CHECK_ERR(__LINE__);
+		RETURN_ERR(__LINE__);
 	}
 
 	m_InFocus = TRUE;
+
+	return S_OK;
 }
 
 VOID CDXWindow::KillFocus() {

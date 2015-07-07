@@ -111,7 +111,7 @@ public:
 	LRESULT WindowProcess(UINT Message, WPARAM wParam, LPARAM lParam);
 
 	/* Creates all objects and sets up the window/swap chain. */
-	VOID Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWindowCallback* pDXWindowCallback);
+	HRESULT Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXWindowCallback* pDXWindowCallback);
 
 private:
 	long m_RefCount; //The reference count
@@ -142,10 +142,10 @@ private:
 	std::wstring m_ClassName; //The name of the window class
 
 	/* Registers the window class with the Windows server. */
-	VOID RegisterWindowClass(const DXWINDOW_DESC& Desc);
+	HRESULT RegisterWindowClass(const DXWINDOW_DESC& Desc);
 
 	/* Creates the window. */
-	VOID MakeWindow(const DXWINDOW_DESC& Desc);
+	HRESULT MakeWindow(const DXWINDOW_DESC& Desc);
 
 	/* Centers the window on the desktop. */
 	VOID CenterWindow();

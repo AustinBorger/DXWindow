@@ -40,7 +40,7 @@ public:
 	SwapChainController(CDXWindow& Window, OutputEnum& Enum);
 
 	/* Creates the swap chain and initializes references. */
-	VOID Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback, HWND Handle);
+	HRESULT Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback, HWND Handle);
 
 	/* Toggles between exclusive fullscreen. */
 	VOID ToggleFullscreen();
@@ -74,5 +74,5 @@ private:
 	}
 
 	/* Creates the swap chain. */
-	VOID CreateSwapChain(CComPtr<IUnknown> DeviceUnk);
+	HRESULT CreateSwapChain(CComPtr<IUnknown> DeviceUnk);
 };

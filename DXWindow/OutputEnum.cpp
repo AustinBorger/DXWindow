@@ -22,7 +22,7 @@
 
 #include "OutputEnum.h"
 
-#define CHECK_HR(Line) if (FAILED(hr)) m_Callback->OnObjectFailure(L"OutputEnum.cpp", Line, hr)
+#define CHECK_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(L"OutputEnum.cpp", Line, hr); return E_FAIL; }
 
 OutputEnum::OutputEnum()
 { }
@@ -30,7 +30,7 @@ OutputEnum::OutputEnum()
 OutputEnum::~OutputEnum() 
 { }
 
-VOID OutputEnum::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback) {
+HRESULT OutputEnum::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback) {
 	HRESULT hr = S_OK;
 	CComPtr<IDXGIDevice> DxgiDevice;
 
@@ -89,6 +89,8 @@ Output* OutputEnum::SearchOutput(HWND Handle) {
 
 	//This probably will never happen, but if the output isn't found we have a problem.
 	m_Callback->OnObjectFailure(L"OutputEnum.cpp", __LINE__, E_FAIL);
+
+	return nullptr;
 }
 
 //Return the first output in the list

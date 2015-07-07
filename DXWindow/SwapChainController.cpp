@@ -23,8 +23,11 @@
 #include "SwapChainController.h"
 #include "CDXWindow.h"
 
-#define CHECK_HR(Line) if (FAILED(hr)) m_Callback->OnObjectFailure(L"SwapChainController.cpp", Line, hr)
-#define CHECK_BRESULT(Line) if (bresult == FALSE) { HRESULT hr = HRESULT_FROM_WIN32(GetLastError()); if (FAILED(hr)) m_Callback->OnObjectFailure(L"SwapChainController.cpp", Line, hr); }
+#define FILENAME L"SwapChainController.cpp"
+#define CHECK_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return; }
+#define RETURN_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return E_FAIL; }
+#define CHECK_BRESULT(Line) if (bresult == FALSE) { HRESULT hr = HRESULT_FROM_WIN32(GetLastError()); if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return; } }
+#define RETURN_BRESULT(Line) if (bresult == FALSE) { HRESULT hr = HRESULT_FROM_WIN32(GetLastError()); if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return E_FAIL; } }
 
 template <typename T>
 static void Zero(T& t) {
@@ -46,20 +49,25 @@ m_OutputEnum(Enum),
 m_Handle(NULL)
 { }
 
-VOID SwapChainController::Initialize (
+HRESULT SwapChainController::Initialize (
 	CComPtr<IUnknown> DeviceUnk,
 	CComPtr<IDXWindowCallback> Callback,
 	HWND Handle
 ) {
+	HRESULT hr = S_OK;
+
 	//Initialize references
 	m_Callback = Callback;
 	m_Handle = Handle;
 
 	//Create the swap chain
-	CreateSwapChain(DeviceUnk);
+	hr = CreateSwapChain(DeviceUnk);
+	if (FAILED(hr)) return hr;
+
+	return S_OK;
 }
 
-VOID SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
+HRESULT SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 	HRESULT hr = S_OK;
 	BOOL bresult = TRUE;
 
@@ -72,7 +80,7 @@ VOID SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 	bresult = GetClientRect (
 		m_Handle,
 		&WindowRect
-	); CHECK_BRESULT(__LINE__);
+	); RETURN_BRESULT(__LINE__);
 
 	//Fill the swap chain description
 	desc.BufferCount = 1;
@@ -94,20 +102,22 @@ VOID SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 	//This is the factory that made the application's device
 	hr = m_OutputEnum.GetAdapter()->GetParent (
 		IID_PPV_ARGS(&factory)
-	); CHECK_HR(__LINE__);
+	); RETURN_HR(__LINE__);
 
 	//Use that factory to create the swap chain
 	hr = factory->CreateSwapChain (
 		DeviceUnk,
 		&desc,
 		&m_SwapChain
-	); CHECK_HR(__LINE__);
+	); RETURN_HR(__LINE__);
 
 	//Turn off alt-enter, since we're using F11 instead
 	hr = factory->MakeWindowAssociation (
 		m_Handle,
 		DXGI_MWA_NO_WINDOW_CHANGES
-	); CHECK_HR(__LINE__);
+	); RETURN_HR(__LINE__);
+
+	return S_OK;
 }
 
 //Flip the swap chain at the requested frame interval

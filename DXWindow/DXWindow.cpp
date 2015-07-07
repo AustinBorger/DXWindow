@@ -43,7 +43,7 @@ HRESULT DXWindowCreateWindow (
 
 	CComPtr<CDXWindow> Window = new CDXWindow();
 
-	Window->Initialize(*pDesc, pDevice, pDXWindowCallback);
+	hr = Window->Initialize(*pDesc, pDevice, pDXWindowCallback);
 
 	if (FAILED(hr)) {
 		*ppDXWindow = nullptr;

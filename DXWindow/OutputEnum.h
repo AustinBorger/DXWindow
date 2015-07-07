@@ -40,7 +40,7 @@ public:
 	~OutputEnum();
 
 	/* Populates the output list and initializes callback reference. */
-	VOID Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback);
+	HRESULT Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback);
 
 	/* Searches the output list for the output that the window occupies. */
 	Output* SearchOutput(HWND Handle);

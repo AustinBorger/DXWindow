@@ -23,7 +23,8 @@
 #include "GamepadMessageDispatcher.h"
 #include "CDXWindow.h"
 
-#define CHECK_ERR(Line) if (err != ERROR_SUCCESS) m_Callback->OnObjectFailure(L"GamepadMessageDispatcher.cpp", Line, HRESULT_FROM_WIN32(err)); return
+#define FILENAME L"GamepadMessageDispatcher.cpp"
+#define CHECK_ERR(Line) if (err != ERROR_SUCCESS) m_Callback->OnObjectFailure(FILENAME, Line, HRESULT_FROM_WIN32(err)); return
 
 //Initialize reference to the window and zero out m_PrevState
 GamepadMessageDispatcher::GamepadMessageDispatcher(CDXWindow& Window) :
