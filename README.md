@@ -32,7 +32,6 @@ Usage
 A window can be created in a few simple steps:
 
 #### 1. Create the window description
-
 `DXWINDOW_DESC` is a structure describing the initial setup of the window:
 
     struct DXWINDOW_DESC {
@@ -57,3 +56,17 @@ A window can be created in a few simple steps:
 - `Width` and `Height` are the dimensions of the client area of the window when it's in a windowed mode.  DXWindow will automatically adjust the full dimensions of the window when the border is added or removed when moving between window modes.
 - `InitFullscreen` is a flag indicating whether or not the window should enter its fullscreen state upon creation.
 - Finally, `AllowToggle` is a flag indicating whether or not the window should toggle between its window and fullscreen states when the user presses F11.
+
+#### 2. Design your callback class
+DXWindow uses a callback mechanism to relay events and errors to the application.  The `IDXWindowCallback` has a large number of methods, most of them self-explanatory.  There are a few important ones to note, however, that must be implemented in order for your application to work correctly:
+
+    VOID OnObjectFailure(LPCWSTR File, UINT Line, HRESULT hr);
+    
+`OnObjectFailure()` functions kind of like an exception, in that it exists so that you don't have to check a return value every time you make an API call.  Since exceptions are illegal across DLL boundaries, `OnObjectFailure()` does the next best thing by providing you with the filename and line where the error occurred, as well as the error itself.
+
+    VOID OnBackBufferCreate(IDXWindow* pDXWindow);
+    VOID OnBackBufferRelease(IDXWindow* pDXWindow);
+    
+`OnBackBufferCreate()` and `OnBackBufferRelease()` are called once every time the window needs to re-create the back buffer.  This happens any time the size of the window is changed or when the window changes between states.  These must be implemented if you wish your window to change modes at any point, since DXGI requires that all references to the back buffer be released before it can be resized.  Each method will be called on window startup and shutdown respectively, so you can keep all of your back buffer code here.
+
+While all of the methods in `IDXWindowCallback` are pure, DXWindow provides a helper implementation class `CDXWindowCallback` that pre-defines all methods as empty (besides `OnObjectFailure()`, which is mandatory - kind of like a Java exception) so that you can choose the ones you want to implement and which ones you want to ignore.
