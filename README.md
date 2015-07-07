@@ -19,3 +19,10 @@ Some interesting points:
 - DXWindow handles movement between monitors so that proper functionality isn't just limited to the primary output device.
 - DXWindow supports all of the common window modes used in games: exclusive fullscreen, fullscreen window, windowed, and borderless.
 - DXWindow is interoperable with Direct2D as well, as it uses the BGRA texture format that Direct2D render targets require.
+- DXWindow takes care of the most common forms of game input - keyboard, mouse, and gamepad.
+
+The library abstracts all window behavior away from the application developer.  This way, you only ever have to worry about what's happening in your game and not the window.
+
+What it doesn't do.
+-------------
+DXWindow does not attempt to provide complete control over window setup.  It handles only the most common use cases, and does not make itself easily extensible without modification of the source code.
