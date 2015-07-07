@@ -29,7 +29,7 @@ DXWindow does not attempt to provide complete control over window setup.  It han
 
 Usage
 -------------
-A window can be created in a few simple steps:
+A window can be created in a four simple steps.
 
 #### 1. Create the window description
 `DXWINDOW_DESC` is a structure describing the initial setup of the window:
@@ -68,5 +68,9 @@ DXWindow uses a callback mechanism to relay events and errors to the application
     VOID OnBackBufferRelease(IDXWindow* pDXWindow);
     
 `OnBackBufferCreate()` and `OnBackBufferRelease()` are called once every time the window needs to re-create the back buffer.  This happens any time the size of the window is changed or when the window changes between states.  These must be implemented if you wish your window to change modes at any point, since DXGI requires that all references to the back buffer be released before it can be resized.  Each method will be called on window startup and shutdown respectively, so you can keep all of your back buffer code here.
+
+    VOID OnWindowClose(IDXWindow* pDXWindow);
+    
+`OnWindowClose()` is sent when the window closes.  This is where you might decide to terminate your game loop.
 
 While all of the methods in `IDXWindowCallback` are pure, DXWindow provides a helper implementation class `CDXWindowCallback` that pre-defines all methods as empty (besides `OnObjectFailure()`, which is mandatory - kind of like a Java exception) so that you can choose the ones you want to implement and which ones you want to ignore.
