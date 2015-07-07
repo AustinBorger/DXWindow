@@ -115,4 +115,35 @@ The `IDXWindow` interface is defined below:
 - `GetAllowToggle()` and `SetAllowToggle()` are the getters and setters for the toggle flag.
 - Finally, `GetBackBuffer()` retrieves the back buffer texture in the interface requested by the application.  The accepted interfaces depend on the version of Direct3D you're using - IE, if you're using Direct3D 11, you may use `ID3D11Texture2D`.  `IDXGISurface` is supported regardless of version - this is the interface you would use for Direct2D interop.
 
+#### And that's it!
+
+All you have to do to include DXWindow in your project is to download the "DXWindow.h" header and dll and link the library.
+These builds will be kept up-to-date with the source code, so you don't have to build it if you don't want to.  Note that
+only Visual Studio is supported for compilation and project files.
+
 [swap-chain]: https://msdn.microsoft.com/en-us/library/windows/desktop/bb509554(v=vs.85).aspx
+
+License
+-------------
+DXWindow is released under the GPLv3 license.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Contributors
+-------------
+DXWindow uses no external libraries other than the ones included in the Windows SDKs.
+
+New contributors are very welcome, as currently this code base is maintained by
+just one person (me).  If DXWindow proves useful for you, but doesn't meet your
+standards, please send feedback to my email at <aaborger@gmail.com>.
