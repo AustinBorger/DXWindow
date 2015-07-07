@@ -89,3 +89,30 @@ A window can be created through `DXWindowCreateWindow()`:
     );
     
 The use of this should be pretty self-explanatory.  `pDeviceUnk` is the device you want to use, which can be any device interface from Direct3D 10 onward.  None of these variables can be `NULL` - if any of them are `NULL`, then the function will return `E_POINTER`.
+
+#### 4. Use the window
+
+The `IDXWindow` interface is defined below:
+
+    struct IDXWindow : public IUnknown {
+    	VOID PumpMessages();
+    	VOID Present(UINT SyncInterval, UINT Flags);
+    	WORD GetWindowWidth();
+    	WORD GetWindowHeight();
+    	VOID SetWindowResolution(WORD Width, WORD Height);
+    	DXWINDOW_STATE STDMETHODCALLTYPE GetState();
+    	VOID SetState(DXWINDOW_STATE State);
+    	BOOL GetAllowToggle();
+    	VOID SetAllowToggle(BOOL AllowToggle);
+    	VOID GetBackBuffer(REFIID rIID, void** ppvBackBuffer);
+    };
+    
+- `PumpMessages()` checks the window message queue and changes in gamepad orientation.  The events are then interpreted and sent to your `IDXWindowCallback` implementation.  The method returns once the window message queue is empty and all gamepads have been checked.
+- `Present()` behaves exactly the same as `IDXGISwapChain::Present()`.  `SyncInterval` refers to the interval number of frames between each flip, coordinated with VSync.  A value of 0 will flip the swap chain with no regard for VSync, a value of 1 will wait for the next v-blank before flipping, a value of 2 will wait two v-blanks, etc.  For `Flags`, refer to [this page][swap-chain] for more details.
+- `GetWindowWidth()` and `GetWindowHeight()` return the width and height of the window when in windowed mode, respectively.  These methods do not return the width and height of the window in fullscreen mode - to query that resolution, you must retrieve it from the back buffer texture's description structure.  You should only use these methods to obtain supplemental information - while you can use them for getting the back buffer dimensions in windowed mode, it's better to use a more consistent method as previously described.
+- `SetWindowResolution()` sets the client resolution of the window in windowed mode.
+- `GetState()` returns the state the window is currently in.  It can be one of `DXWINDOW_STATE_WINDOWED`, `DXWINDOW_STATE_BORDERLESS`, `DXWINDOW_STATE_FULLSCREEN`, or `DXWINDOW_STATE_FULLSCREEN_WINDOW`.  `SetState()` will immediately change this property of the window.
+- `GetAllowToggle()` and `SetAllowToggle()` are the getters and setters for the toggle flag.
+- Finally, `GetBackBuffer()` retrieves the back buffer texture in the interface requested by the application.  The accepted interfaces depend on the version of Direct3D you're using - IE, if you're using Direct3D 11, you may use `ID3D11Texture2D`.  `IDXGISurface` is supported regardless of version - this is the interface you would use for Direct2D interop.
+
+[swap-chain]: https://msdn.microsoft.com/en-us/library/windows/desktop/bb509554(v=vs.85).aspx
