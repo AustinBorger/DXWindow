@@ -266,7 +266,7 @@ struct __declspec(uuid("20203c63-f6f4-47ea-93cd-2784f02ecd61")) IDXWindow : publ
 /* Creates a window.  pDevice can be any D3D device version 11 or later. */
 extern "C" HRESULT _DXWINDOW_EXPORT_TAG DXWindowCreateWindow (
 	const DXWINDOW_DESC* pDesc,
-	IUnknown* pDevice,
+	IUnknown* pDeviceUnk,
 	IDXWindowCallback* pDXWindowCallback,
 	IDXWindow** ppDXWindow
 );
