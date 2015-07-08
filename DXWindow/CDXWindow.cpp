@@ -353,7 +353,16 @@ HRESULT CDXWindow::RegisterWindowClass(const DXWINDOW_DESC& Desc) {
 
 	//Sets the class name to the prefix + the title of the window
 	m_ClassName = WINDOW_CLASS_NAME;
-	m_ClassName.append(Desc.Title);
+	m_ClassName.append(L"-");
+
+	GUID suffixGUID;
+	LPOLESTR strGUID;
+
+	hr = CoCreateGuid(&suffixGUID); RETURN_HR(__LINE__);
+	hr = StringFromCLSID(suffixGUID, &strGUID); RETURN_HR(__LINE__);
+	m_ClassName.append(strGUID);
+	CoTaskMemFree(strGUID);
+	strGUID = nullptr;
 
 	wc.cbSize = sizeof(wc);
 	wc.hbrBackground = NULL;
