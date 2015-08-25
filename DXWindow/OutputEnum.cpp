@@ -22,6 +22,7 @@
 
 #include "OutputEnum.h"
 
+#define FILENAME L"OutputEnum.cpp"
 #define CHECK_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(L"OutputEnum.cpp", Line, hr); return E_FAIL; }
 
 OutputEnum::OutputEnum()
@@ -36,7 +37,7 @@ HRESULT OutputEnum::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCal
 
 	m_Callback = Callback;
 
-	//All D3D devices implement IDXGIDevice
+	//All D3D11 devices implement IDXGIDevice
 	hr = DeviceUnk->QueryInterface (
 		IID_PPV_ARGS(&DxgiDevice)
 	); CHECK_HR(__LINE__);
@@ -88,7 +89,7 @@ Output* OutputEnum::SearchOutput(HWND Handle) {
 	}
 
 	//This probably will never happen, but if the output isn't found we have a problem.
-	m_Callback->OnObjectFailure(L"OutputEnum.cpp", __LINE__, E_FAIL);
+	m_Callback->OnObjectFailure(FILENAME, __LINE__, E_FAIL);
 
 	return nullptr;
 }

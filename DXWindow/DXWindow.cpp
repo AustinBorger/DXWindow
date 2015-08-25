@@ -22,7 +22,15 @@
 
 #include "DXWindow.h"
 #include <atlbase.h>
+#include <d3d11.h>
 #include "CDXWindow.h"
+
+#ifdef _DXWINDOW_SUPPORT_12
+
+#include <d3d12.h>
+#include "CDXWindow12.h"
+
+#endif
 
 #pragma comment(lib, "XInput9_1_0.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -41,16 +49,49 @@ HRESULT DXWindowCreateWindow (
 		return E_POINTER;
 	}
 
-	CComPtr<CDXWindow> Window = new CDXWindow();
+	void* pv = nullptr;
 
-	hr = Window->Initialize(*pDesc, pDevice, pDXWindowCallback);
+	hr = pDevice->QueryInterface(__uuidof(ID3D11Device), &pv);
 
-	if (FAILED(hr)) {
-		*ppDXWindow = nullptr;
-		return hr;
+	if (SUCCEEDED(hr)) {
+		pDevice->Release(); //reduce refcount after call to QueryInterface
+
+		CComPtr<CDXWindow> Window = new CDXWindow();
+
+		hr = Window->Initialize(*pDesc, pDevice, pDXWindowCallback);
+
+		if (FAILED(hr)) {
+			*ppDXWindow = nullptr;
+			return hr;
+		}
+
+		*ppDXWindow = Window;
+
+		return S_OK;
 	}
 
-	*ppDXWindow = Window;
+#ifdef _DXWINDOW_SUPPORT_12
 
-	return S_OK;
+	hr = pDevice->QueryInterface(__uuidof(ID3D12Device), &pv);
+
+	if (SUCCEEDED(hr)) {
+		pDevice->Release(); //reduce refcount after call to QueryInterface
+
+		CComPtr<CDXWindow12> Window = new CDXWindow12();
+
+		hr = Window->Initialize(*pDesc, pDevice, pDXWindowCallback);
+
+		if (FAILED(hr)) {
+			*ppDXWindow = nullptr;
+			return hr;
+		}
+
+		*ppDXWindow = Window;
+
+		return S_OK;
+	}
+
+#endif
+
+	return E_INVALIDARG;
 }

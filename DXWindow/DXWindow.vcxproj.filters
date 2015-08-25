@@ -9,6 +9,8 @@
     <ClInclude Include="SwapChainController.h" />
     <ClInclude Include="Output.h" />
     <ClInclude Include="OutputEnum.h" />
+    <ClInclude Include="CDXWindow12.h" />
+    <ClInclude Include="OutputEnum12.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WindowMessageDispatcher.cpp" />
@@ -18,5 +20,7 @@
     <ClCompile Include="SwapChainController.cpp" />
     <ClCompile Include="Output.cpp" />
     <ClCompile Include="OutputEnum.cpp" />
+    <ClCompile Include="CDXWindow12.cpp" />
+    <ClCompile Include="OutputEnum12.cpp" />
   </ItemGroup>
 </Project>
