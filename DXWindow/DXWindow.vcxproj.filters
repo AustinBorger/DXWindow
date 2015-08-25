@@ -12,6 +12,7 @@
     <ClInclude Include="CDXWindow12.h" />
     <ClInclude Include="OutputEnum12.h" />
     <ClInclude Include="Output12.h" />
+    <ClInclude Include="SwapChainController12.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WindowMessageDispatcher.cpp" />
@@ -24,5 +25,6 @@
     <ClCompile Include="CDXWindow12.cpp" />
     <ClCompile Include="OutputEnum12.cpp" />
     <ClCompile Include="Output12.cpp" />
+    <ClCompile Include="SwapChainController12.cpp" />
   </ItemGroup>
 </Project>

@@ -28,7 +28,7 @@
 
 #include "WindowMessageDispatcher.h"
 #include "GamepadMessageDispatcher.h"
-#include "SwapChainController.h"
+#include "SwapChainController12.h"
 #include "QueryInterface.h"
 
 /* This is the final implementation of IDXWindow. */
@@ -118,10 +118,10 @@ private:
 
 	HWND m_Handle; //The window handle
 	HINSTANCE m_Instance; //The application's instance handle
-	OutputEnum m_OutputEnum; //The output enum object
+	OutputEnum12 m_OutputEnum; //The output enum object
 	WindowMessageDispatcher m_WindowMessageDispatcher; //Dispatches window messages to the callback
 	GamepadMessageDispatcher m_GamepadMessageDispatcher; //Dispatches gamepad messages to the callback
-	SwapChainController m_SwapChainController; //The swap chain controller object
+	SwapChainController12 m_SwapChainController; //The swap chain controller object
 
 	WORD m_WindowWidth; //The width of the window in windowed or borderless
 	WORD m_WindowHeight; //The height of the window in windowed or borderless

@@ -23,7 +23,8 @@
 #include "Output12.h"
 #include <vector>
 
-#define CHECK_HR(Line) if (FAILED(hr)) m_Callback->OnObjectFailure(L"Output.cpp", Line, hr)
+#define FILENAME L"Output12.cpp"
+#define CHECK_HR(Line) if (FAILED(hr)) m_Callback->OnObjectFailure(FILENAME, Line, hr)
 #define CHECK_BRESULT(Line) if (bresult == FALSE) { HRESULT hr = HRESULT_FROM_WIN32(GetLastError()); if (FAILED(hr)) m_Callback->OnObjectFailure(L"Output.cpp", Line, hr); }
 
 template <typename T>

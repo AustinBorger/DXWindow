@@ -142,6 +142,7 @@
     <ClInclude Include="OutputEnum12.h" />
     <ClInclude Include="QueryInterface.h" />
     <ClInclude Include="SwapChainController.h" />
+    <ClInclude Include="SwapChainController12.h" />
     <ClInclude Include="WindowMessageDispatcher.h" />
   </ItemGroup>
   <ItemGroup>
@@ -154,6 +155,7 @@
     <ClCompile Include="Output.cpp" />
     <ClCompile Include="OutputEnum12.cpp" />
     <ClCompile Include="SwapChainController.cpp" />
+    <ClCompile Include="SwapChainController12.cpp" />
     <ClCompile Include="WindowMessageDispatcher.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
