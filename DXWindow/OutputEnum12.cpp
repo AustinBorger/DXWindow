@@ -74,7 +74,7 @@ HRESULT OutputEnum12::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowC
 	}
 }
 
-Output* OutputEnum12::SearchOutput(HWND Handle) {
+Output12* OutputEnum12::SearchOutput(HWND Handle) {
 	//Gets the nearest monitor
 	HMONITOR monitor = MonitorFromWindow (
 		Handle,
@@ -82,7 +82,7 @@ Output* OutputEnum12::SearchOutput(HWND Handle) {
 	);
 
 	//Finds the output with the same monitor handle
-	for (Output& output : m_Outputs) {
+	for (Output12& output : m_Outputs) {
 		if (output.GetMonitor() == monitor) {
 			return &output;
 		}
@@ -95,6 +95,6 @@ Output* OutputEnum12::SearchOutput(HWND Handle) {
 }
 
 //Return the first output in the list
-Output* OutputEnum12::PrimaryOutput() {
+Output12* OutputEnum12::PrimaryOutput() {
 	return &m_Outputs.front();
 }

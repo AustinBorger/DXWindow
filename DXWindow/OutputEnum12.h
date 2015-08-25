@@ -25,11 +25,11 @@
 #include <Windows.h>
 #include <comdef.h>
 #include <atlbase.h>
-#include <dxgi1_3.h>
+#include <dxgi1_4.h>
 #include <vector>
 
 #include "DXWindow.h"
-#include "Output.h"
+#include "Output12.h"
 #include "QueryInterface.h"
 
 /* This class acts as a collection of all the outputs on the device's adapter. */
@@ -43,10 +43,10 @@ public:
 	HRESULT Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback);
 
 	/* Searches the output list for the output that the window occupies. */
-	Output* SearchOutput(HWND Handle);
+	Output12* SearchOutput(HWND Handle);
 
 	/* Returns the primary output of the adapter. */
-	Output* PrimaryOutput();
+	Output12* PrimaryOutput();
 
 	/* Returns the adapter. */
 	CComPtr<IDXGIAdapter3> GetAdapter() {
@@ -54,7 +54,7 @@ public:
 	}
 
 private:
-	std::vector<Output> m_Outputs; //The output list
+	std::vector<Output12> m_Outputs; //The output list
 	CComPtr<IDXGIAdapter3> m_Adapter; //The adapter
 	CComPtr<IDXWindowCallback> m_Callback; //The application-supplied callback
 };

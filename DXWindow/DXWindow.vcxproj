@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B7B189FB-D4AC-463B-91C8-CD954BC8BF06}</ProjectGuid>
     <RootNamespace>DXWindow</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.10240.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -134,6 +134,7 @@
   <ItemGroup>
     <ClInclude Include="CDXWindow.h" />
     <ClInclude Include="CDXWindow12.h" />
+    <ClInclude Include="Output12.h" />
     <ClInclude Include="OutputEnum.h" />
     <ClInclude Include="DXWindow.h" />
     <ClInclude Include="GamepadMessageDispatcher.h" />
@@ -146,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="CDXWindow.cpp" />
     <ClCompile Include="CDXWindow12.cpp" />
+    <ClCompile Include="Output12.cpp" />
     <ClCompile Include="OutputEnum.cpp" />
     <ClCompile Include="DXWindow.cpp" />
     <ClCompile Include="GamepadMessageDispatcher.cpp" />
