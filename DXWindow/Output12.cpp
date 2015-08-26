@@ -20,6 +20,8 @@
 **		https://github.com/AustinBorger/DXWindow
 */
 
+#ifdef _DXWINDOW_SUPPORT_12
+
 #include "Output12.h"
 #include <vector>
 
@@ -118,3 +120,5 @@ VOID Output12::GetDesktopArea(RECT* pRect) {
 
 	*pRect = m.rcMonitor;
 }
+
+#endif

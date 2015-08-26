@@ -87,7 +87,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DXWINDOW_DLL_PROJECT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DXWINDOW_DLL_PROJECT;_DXWINDOW_SUPPORT_12;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -121,7 +121,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DXWINDOW_DLL_PROJECT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DXWINDOW_DLL_PROJECT;_DXWINDOW_SUPPORT_12;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -134,6 +134,7 @@
   <ItemGroup>
     <ClInclude Include="CDXWindow.h" />
     <ClInclude Include="CDXWindow12.h" />
+    <ClInclude Include="GamepadMessageDispatcher12.h" />
     <ClInclude Include="Output12.h" />
     <ClInclude Include="OutputEnum.h" />
     <ClInclude Include="DXWindow.h" />
@@ -144,10 +145,12 @@
     <ClInclude Include="SwapChainController.h" />
     <ClInclude Include="SwapChainController12.h" />
     <ClInclude Include="WindowMessageDispatcher.h" />
+    <ClInclude Include="WindowMessageDispatcher12.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CDXWindow.cpp" />
     <ClCompile Include="CDXWindow12.cpp" />
+    <ClCompile Include="GamepadMessageDispatcher12.cpp" />
     <ClCompile Include="Output12.cpp" />
     <ClCompile Include="OutputEnum.cpp" />
     <ClCompile Include="DXWindow.cpp" />
@@ -157,6 +160,7 @@
     <ClCompile Include="SwapChainController.cpp" />
     <ClCompile Include="SwapChainController12.cpp" />
     <ClCompile Include="WindowMessageDispatcher.cpp" />
+    <ClCompile Include="WindowMessageDispatcher12.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

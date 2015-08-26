@@ -22,6 +22,8 @@
 
 #pragma once
 
+#ifdef _DXWINDOW_SUPPORT_12
+
 #include <dxgi1_4.h>
 #include <comdef.h>
 #include <atlbase.h>
@@ -69,3 +71,5 @@ private:
 	CComPtr<IDXWindowCallback> m_Callback; //The application-supplied callback
 	DXGI_OUTPUT_DESC m_Desc; //The output's description
 };
+
+#endif

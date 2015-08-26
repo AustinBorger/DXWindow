@@ -13,6 +13,8 @@
     <ClInclude Include="OutputEnum12.h" />
     <ClInclude Include="Output12.h" />
     <ClInclude Include="SwapChainController12.h" />
+    <ClInclude Include="WindowMessageDispatcher12.h" />
+    <ClInclude Include="GamepadMessageDispatcher12.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WindowMessageDispatcher.cpp" />
@@ -26,5 +28,7 @@
     <ClCompile Include="OutputEnum12.cpp" />
     <ClCompile Include="Output12.cpp" />
     <ClCompile Include="SwapChainController12.cpp" />
+    <ClCompile Include="WindowMessageDispatcher12.cpp" />
+    <ClCompile Include="GamepadMessageDispatcher12.cpp" />
   </ItemGroup>
 </Project>

@@ -20,6 +20,8 @@
 **		https://github.com/AustinBorger/DXWindow
 */
 
+#ifdef _DXWINDOW_SUPPORT_12
+
 #include "OutputEnum12.h"
 
 #define FILENAME L"OutputEnum12.cpp"
@@ -64,7 +66,7 @@ HRESULT OutputEnum12::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowC
 			CHECK_HR(__LINE__);
 		}
 
-		m_Outputs.push_back(Output());
+		m_Outputs.push_back(Output12());
 
 		m_Outputs.back().Initialize(output, m_Callback);
 
@@ -72,6 +74,8 @@ HRESULT OutputEnum12::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowC
 
 		index++;
 	}
+
+	return S_OK;
 }
 
 Output12* OutputEnum12::SearchOutput(HWND Handle) {
@@ -98,3 +102,5 @@ Output12* OutputEnum12::SearchOutput(HWND Handle) {
 Output12* OutputEnum12::PrimaryOutput() {
 	return &m_Outputs.front();
 }
+
+#endif

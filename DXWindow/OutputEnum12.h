@@ -22,6 +22,8 @@
 
 #pragma once
 
+#ifdef _DXWINDOW_SUPPORT_12
+
 #include <Windows.h>
 #include <comdef.h>
 #include <atlbase.h>
@@ -58,3 +60,5 @@ private:
 	CComPtr<IDXGIAdapter3> m_Adapter; //The adapter
 	CComPtr<IDXWindowCallback> m_Callback; //The application-supplied callback
 };
+
+#endif

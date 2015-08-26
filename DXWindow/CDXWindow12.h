@@ -22,12 +22,14 @@
 
 #pragma once
 
+#ifdef _DXWINDOW_SUPPORT_12
+
 #include "DXWindow.h"
 #include <dxgi1_4.h>
 #include <string>
 
-#include "WindowMessageDispatcher.h"
-#include "GamepadMessageDispatcher.h"
+#include "WindowMessageDispatcher12.h"
+#include "GamepadMessageDispatcher12.h"
 #include "SwapChainController12.h"
 #include "QueryInterface.h"
 
@@ -119,8 +121,8 @@ private:
 	HWND m_Handle; //The window handle
 	HINSTANCE m_Instance; //The application's instance handle
 	OutputEnum12 m_OutputEnum; //The output enum object
-	WindowMessageDispatcher m_WindowMessageDispatcher; //Dispatches window messages to the callback
-	GamepadMessageDispatcher m_GamepadMessageDispatcher; //Dispatches gamepad messages to the callback
+	WindowMessageDispatcher12 m_WindowMessageDispatcher; //Dispatches window messages to the callback
+	GamepadMessageDispatcher12 m_GamepadMessageDispatcher; //Dispatches gamepad messages to the callback
 	SwapChainController12 m_SwapChainController; //The swap chain controller object
 
 	WORD m_WindowWidth; //The width of the window in windowed or borderless
@@ -174,3 +176,5 @@ private:
 	/* Retrieves the desktop area of the output the window occupies. */
 	VOID GetDesktopArea(RECT& DesktopArea);
 };
+
+#endif

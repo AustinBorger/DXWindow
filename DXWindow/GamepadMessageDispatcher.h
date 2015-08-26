@@ -28,7 +28,7 @@
 #include <atlbase.h>
 #include "DXWindow.h"
 
-class CDXWindow;
+class CDXWindow; //Forward declaration of window class
 
 /* This class detects changes in gamepad state and translates them to events
 ** in the form of method calls to the callback interface supplied by the

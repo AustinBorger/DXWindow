@@ -1,0 +1,27 @@
+﻿Build started 8/26/2015 3:55:07 PM.
+     1>Project "C:\Users\Austin\Documents\COM Objects\DXWindow\DXWindow\DXWindow.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _DXWINDOW_DLL_PROJECT /D _DXWINDOW_SUPPORT_12 /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug12\\" /Fd"Debug12\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt OutputEnum.cpp OutputEnum12.cpp
+         OutputEnum12.cpp
+         OutputEnum.cpp
+         Generating Code...
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\DXWindow.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\DXWindow.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\DXWindow.lib" /MACHINE:X86 /DLL Debug12\CDXWindow.obj
+         Debug12\CDXWindow12.obj
+         Debug12\GamepadMessageDispatcher12.obj
+         Debug12\Output12.obj
+         Debug12\OutputEnum.obj
+         Debug12\DXWindow.obj
+         Debug12\GamepadMessageDispatcher.obj
+         Debug12\Output.obj
+         Debug12\OutputEnum12.obj
+         Debug12\SwapChainController.obj
+         Debug12\SwapChainController12.obj
+         Debug12\WindowMessageDispatcher.obj
+         Debug12\WindowMessageDispatcher12.obj
+         DXWindow.vcxproj -> C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\DXWindow.dll
+     1>Done Building Project "C:\Users\Austin\Documents\COM Objects\DXWindow\DXWindow\DXWindow.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:02.38

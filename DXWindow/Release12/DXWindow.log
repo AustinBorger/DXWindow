@@ -1,0 +1,41 @@
+﻿Build started 8/26/2015 3:55:23 PM.
+     1>Project "C:\Users\Austin\Documents\COM Objects\DXWindow\DXWindow\DXWindow.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D _DXWINDOW_DLL_PROJECT /D _DXWINDOW_SUPPORT_12 /D _WINDLL /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Release12\\" /Fd"Release12\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt CDXWindow.cpp CDXWindow12.cpp GamepadMessageDispatcher12.cpp Output12.cpp OutputEnum.cpp DXWindow.cpp GamepadMessageDispatcher.cpp Output.cpp OutputEnum12.cpp SwapChainController.cpp SwapChainController12.cpp WindowMessageDispatcher.cpp WindowMessageDispatcher12.cpp
+         CDXWindow.cpp
+         CDXWindow12.cpp
+         GamepadMessageDispatcher12.cpp
+         Output12.cpp
+         OutputEnum.cpp
+         DXWindow.cpp
+         GamepadMessageDispatcher.cpp
+         Output.cpp
+         OutputEnum12.cpp
+         SwapChainController.cpp
+         SwapChainController12.cpp
+         WindowMessageDispatcher.cpp
+         WindowMessageDispatcher12.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Austin\Documents\COM Objects\DXWindow\Release12\DXWindow.dll" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\Austin\Documents\COM Objects\DXWindow\Release12\DXWindow.pdb" /OPT:REF /OPT:ICF /LTCG:incremental /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Austin\Documents\COM Objects\DXWindow\Release12\DXWindow.lib" /MACHINE:X86 /SAFESEH /DLL Release12\CDXWindow.obj
+         Release12\CDXWindow12.obj
+         Release12\GamepadMessageDispatcher12.obj
+         Release12\Output12.obj
+         Release12\OutputEnum.obj
+         Release12\DXWindow.obj
+         Release12\GamepadMessageDispatcher.obj
+         Release12\Output.obj
+         Release12\OutputEnum12.obj
+         Release12\SwapChainController.obj
+         Release12\SwapChainController12.obj
+         Release12\WindowMessageDispatcher.obj
+         Release12\WindowMessageDispatcher12.obj
+            Creating library C:\Users\Austin\Documents\COM Objects\DXWindow\Release12\DXWindow.lib and object C:\Users\Austin\Documents\COM Objects\DXWindow\Release12\DXWindow.exp
+         Generating code
+         All 895 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+         Finished generating code
+         DXWindow.vcxproj -> C:\Users\Austin\Documents\COM Objects\DXWindow\Release12\DXWindow.dll
+     1>Done Building Project "C:\Users\Austin\Documents\COM Objects\DXWindow\DXWindow\DXWindow.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:13.84

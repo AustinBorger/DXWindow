@@ -72,6 +72,8 @@ HRESULT OutputEnum::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCal
 
 		index++;
 	}
+
+	return S_OK;
 }
 
 Output* OutputEnum::SearchOutput(HWND Handle) {

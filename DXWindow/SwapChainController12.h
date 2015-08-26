@@ -22,6 +22,8 @@
 
 #pragma once
 
+#ifdef _DXWINDOW_SUPPORT_12
+
 #include <Windows.h>
 #include <comdef.h>
 #include <atlbase.h>
@@ -31,13 +33,13 @@
 #include "Output12.h"
 #include "OutputEnum12.h"
 
-class CDXWindow;
+class CDXWindow12; //Forward declaration of window class
 
 /* This class deals with the swap chain. */
 class SwapChainController12 {
 public:
 	/* Initializes references. */
-	SwapChainController12(CDXWindow& Window, OutputEnum12& Enum);
+	SwapChainController12(CDXWindow12& Window, OutputEnum12& Enum);
 
 	/* Creates the swap chain and initializes references. */
 	HRESULT Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback, HWND Handle);
@@ -55,7 +57,7 @@ public:
 	VOID GetBackBuffer(REFIID rIID, void** ppvBackBuffer);
 
 private:
-	CDXWindow& m_Window; //Reference to the window object
+	CDXWindow12& m_Window; //Reference to the window object
 	CComPtr<IDXWindowCallback> m_Callback; //Reference to the application-supplied callback
 	CComPtr<IDXGISwapChain> m_SwapChain; //Our swap chain
 	HWND m_Handle; //The window handle (assigned by CDXWindow)
@@ -76,3 +78,5 @@ private:
 	/* Creates the swap chain. */
 	HRESULT CreateSwapChain(CComPtr<IUnknown> DeviceUnk);
 };
+
+#endif

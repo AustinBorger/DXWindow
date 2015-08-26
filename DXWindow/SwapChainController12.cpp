@@ -20,8 +20,10 @@
 **		https://github.com/AustinBorger/DXWindow
 */
 
+#ifdef _DXWINDOW_SUPPORT_12
+
 #include "SwapChainController12.h"
-#include "CDXWindow.h"
+#include "CDXWindow12.h"
 
 #define FILENAME L"SwapChainController12.cpp"
 #define CHECK_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return; }
@@ -43,7 +45,7 @@ static void Zero(T& t) {
 static const DXGI_FORMAT GLOBAL_DXGI_FORMAT = DXGI_FORMAT_B8G8R8A8_UNORM;
 
 //Initialize our reference
-SwapChainController12::SwapChainController12(CDXWindow& Window, OutputEnum12& Enum) :
+SwapChainController12::SwapChainController12(CDXWindow12& Window, OutputEnum12& Enum) :
 m_Window(Window),
 m_OutputEnum(Enum),
 m_Handle(NULL)
@@ -189,3 +191,5 @@ VOID SwapChainController12::ResizeBuffers() {
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH	//UINT SwapChainFlags
 	); CHECK_HR(__LINE__);
 }
+
+#endif
