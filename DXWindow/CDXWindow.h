@@ -102,8 +102,8 @@ public:
 		m_AllowToggle = AllowToggle;
 	}
 
-	/* Returns the back buffer in the requested interface. */
-	VOID STDMETHODCALLTYPE GetBackBuffer(REFIID rIID, void** ppvBackBuffer) final;
+	/* Returns the specified buffer in the requested interface. */
+	VOID STDMETHODCALLTYPE GetBuffer(UINT Buffer, REFIID rIID, void** ppvBackBuffer) final;
 
 	//New methods
 

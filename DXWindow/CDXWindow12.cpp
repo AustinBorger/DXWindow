@@ -153,9 +153,10 @@ VOID CDXWindow12::Present(UINT SyncInterval, UINT Flags) {
 	);
 }
 
-//Returns the backbuffer in the requested interface
-VOID CDXWindow12::GetBackBuffer(REFIID rIID, void** ppvBackBuffer) {
-	m_SwapChainController.GetBackBuffer (
+//Returns the specified buffer in the requested interface
+VOID CDXWindow12::GetBuffer(UINT Buffer, REFIID rIID, void** ppvBackBuffer) {
+	m_SwapChainController.GetBuffer (
+		Buffer,
 		rIID,
 		ppvBackBuffer
 	);

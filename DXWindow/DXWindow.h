@@ -58,6 +58,7 @@ struct DXWINDOW_DESC {
 	WORD Height; //The height of the window in windowed or borderless
 	BOOL InitFullscreen; //Whether or not to immediately go to fullscreen
 	BOOL AllowToggle; //Whether or not to allow toggle between fullscreen and windowed via F11
+	UINT NumBuffers; //Number of buffers in the swap chain (must be 2 or greater)
 };
 
 struct IDXWindow;
@@ -253,8 +254,8 @@ struct __declspec(uuid("20203c63-f6f4-47ea-93cd-2784f02ecd61")) IDXWindow : publ
 	/* Controls whether or not the window can be toggle between fullscreen and windowed via F11. */
 	virtual VOID STDMETHODCALLTYPE SetAllowToggle(BOOL AllowToggle) PURE;
 
-	/* Retrieves the back buffer in the interface of your choosing. */
-	virtual VOID STDMETHODCALLTYPE GetBackBuffer(REFIID rIID, void** ppvBackBuffer) PURE;
+	/* Retrieves the render target view in the interface of your choosing. */
+	virtual VOID STDMETHODCALLTYPE GetBuffer(UINT Buffer, REFIID rIID, void** ppvBuffer) PURE;
 };
 
 #ifdef _DXWINDOW_DLL_PROJECT

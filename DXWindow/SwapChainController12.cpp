@@ -54,7 +54,8 @@ m_Handle(NULL)
 HRESULT SwapChainController12::Initialize (
 	CComPtr<IUnknown> DeviceUnk,
 	CComPtr<IDXWindowCallback> Callback,
-	HWND Handle
+	HWND Handle,
+	UINT NumBuffers
 ) {
 	HRESULT hr = S_OK;
 
@@ -63,18 +64,23 @@ HRESULT SwapChainController12::Initialize (
 	m_Handle = Handle;
 
 	//Create the swap chain
-	hr = CreateSwapChain(DeviceUnk);
+	hr = CreateSwapChain(DeviceUnk, NumBuffers);
 	if (FAILED(hr)) return hr;
 
 	return S_OK;
 }
 
-HRESULT SwapChainController12::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
+HRESULT SwapChainController12::CreateSwapChain(CComPtr<IUnknown> DeviceUnk, UINT NumBuffers) {
 	HRESULT hr = S_OK;
 	BOOL bresult = TRUE;
 
+	if (NumBuffers < 2) {
+		hr = E_INVALIDARG;
+		RETURN_HR(__LINE__);
+	}
+
 	DXGI_SWAP_CHAIN_DESC desc; Zero(desc);
-	CComPtr<IDXGIFactory> factory;
+	CComPtr<IDXGIFactory4> factory;
 
 	RECT WindowRect;
 
@@ -85,7 +91,7 @@ HRESULT SwapChainController12::CreateSwapChain(CComPtr<IUnknown> DeviceUnk) {
 	); RETURN_BRESULT(__LINE__);
 
 	//Fill the swap chain description
-	desc.BufferCount = 1;
+	desc.BufferCount = NumBuffers; //For D3D12, this is the total number of buffers, not the number of back buffers.
 	desc.BufferDesc.Format = GLOBAL_DXGI_FORMAT;
 	desc.BufferDesc.Width = WindowRect.right - WindowRect.left;
 	desc.BufferDesc.Height = WindowRect.bottom - WindowRect.top;
@@ -132,14 +138,14 @@ VOID SwapChainController12::Present(UINT SyncInterval, UINT Flags) {
 	); CHECK_HR(__LINE__);
 }
 
-//Retrieve the back buffer from the swap chain
-VOID SwapChainController12::GetBackBuffer(REFIID rIID, void** ppvBackBuffer) {
+//Retrieve the buffer at the index specified
+VOID SwapChainController12::GetBuffer(UINT Index, REFIID rIID, void** ppvBuffer) {
 	HRESULT hr = S_OK;
 
 	hr = m_SwapChain->GetBuffer (
-		0,
+		Index,
 		rIID,
-		ppvBackBuffer
+		ppvBuffer
 	); CHECK_HR(__LINE__);
 }
 

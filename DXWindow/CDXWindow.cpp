@@ -103,7 +103,7 @@ HRESULT CDXWindow::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, IDXW
 	m_GamepadMessageDispatcher.Initialize(m_Callback);
 
 	//Initialize the swap chain controller
-	hr = m_SwapChainController.Initialize(DeviceUnk, m_Callback, m_Handle);
+	hr = m_SwapChainController.Initialize(DeviceUnk, m_Callback, m_Handle, Desc.NumBuffers);
 	if (FAILED(hr)) return E_FAIL;
 
 	//Initialize the state
@@ -152,8 +152,9 @@ VOID CDXWindow::Present(UINT SyncInterval, UINT Flags) {
 }
 
 //Returns the backbuffer in the requested interface
-VOID CDXWindow::GetBackBuffer(REFIID rIID, void** ppvBackBuffer) {
-	m_SwapChainController.GetBackBuffer (
+VOID CDXWindow::GetBuffer(UINT Buffer, REFIID rIID, void** ppvBackBuffer) {
+	m_SwapChainController.GetBuffer (
+		Buffer,
 		rIID,
 		ppvBackBuffer
 	);
