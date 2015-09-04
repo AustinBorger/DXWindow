@@ -104,7 +104,7 @@ The `IDXWindow` interface is defined below:
     	VOID SetState(DXWINDOW_STATE State);
     	BOOL GetAllowToggle();
     	VOID SetAllowToggle(BOOL AllowToggle);
-    	VOID GetBackBuffer(REFIID rIID, void** ppvBackBuffer);
+    	VOID GetBuffer(UINT Index, REFIID rIID, void** ppvBackBuffer);
     };
     
 - `PumpMessages()` checks the window message queue and changes in gamepad orientation.  The events are then interpreted and sent to your `IDXWindowCallback` implementation.  The method returns once the window message queue is empty and all gamepads have been checked.
@@ -113,7 +113,7 @@ The `IDXWindow` interface is defined below:
 - `SetWindowResolution()` sets the client resolution of the window in windowed mode.
 - `GetState()` returns the state the window is currently in.  It can be one of `DXWINDOW_STATE_WINDOWED`, `DXWINDOW_STATE_BORDERLESS`, `DXWINDOW_STATE_FULLSCREEN`, or `DXWINDOW_STATE_FULLSCREEN_WINDOW`.  `SetState()` will immediately change this property of the window.
 - `GetAllowToggle()` and `SetAllowToggle()` are the getters and setters for the toggle flag.
-- Finally, `GetBackBuffer()` retrieves the back buffer texture in the interface requested by the application.  The accepted interfaces depend on the version of Direct3D you're using - IE, if you're using Direct3D 11, you may use `ID3D11Texture2D`.  `IDXGISurface` is supported regardless of version - this is the interface you would use for Direct2D interop.
+- Finally, `GetBuffer()` retrieves the back buffer texture in the interface requested by the application.  The accepted interfaces depend on the version of Direct3D you're using - IE, if you're using Direct3D 11, you may use `ID3D11Texture2D`.  `IDXGISurface` is supported only for Direct3D 11 - this is the interface you would use for Direct2D interop.
 
 #### And that's it!
 
