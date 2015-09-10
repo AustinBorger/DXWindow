@@ -23,7 +23,7 @@
 #include "OutputEnum.h"
 
 #define FILENAME L"OutputEnum.cpp"
-#define CHECK_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(L"OutputEnum.cpp", Line, hr); return E_FAIL; }
+#define CHECK_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return E_FAIL; }
 
 OutputEnum::OutputEnum()
 { }

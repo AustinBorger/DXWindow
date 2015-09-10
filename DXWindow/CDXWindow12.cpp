@@ -105,7 +105,7 @@ HRESULT CDXWindow12::Initialize(const DXWINDOW_DESC& Desc, IUnknown* pDevice, ID
 	m_GamepadMessageDispatcher.Initialize(m_Callback);
 
 	//Initialize the swap chain controller
-	hr = m_SwapChainController.Initialize(DeviceUnk, m_Callback, m_Handle);
+	hr = m_SwapChainController.Initialize(DeviceUnk, m_Callback, m_Handle, Desc.NumBuffers);
 	if (FAILED(hr)) return E_FAIL;
 
 	//Initialize the state

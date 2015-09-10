@@ -72,7 +72,7 @@ HRESULT DXWindowCreateWindow (
 
 #ifdef _DXWINDOW_SUPPORT_12
 
-	hr = pDevice->QueryInterface(__uuidof(ID3D12Device), &pv);
+	hr = pDevice->QueryInterface(__uuidof(ID3D12CommandQueue), &pv);
 
 	if (SUCCEEDED(hr)) {
 		pDevice->Release(); //reduce refcount after call to QueryInterface

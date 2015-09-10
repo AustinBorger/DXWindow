@@ -81,6 +81,7 @@ HRESULT SwapChainController12::CreateSwapChain(CComPtr<IUnknown> DeviceUnk, UINT
 
 	DXGI_SWAP_CHAIN_DESC desc; Zero(desc);
 	CComPtr<IDXGIFactory4> factory;
+	CComPtr<IDXGISwapChain> BaseSwapChain;
 
 	RECT WindowRect;
 
@@ -104,7 +105,7 @@ HRESULT SwapChainController12::CreateSwapChain(CComPtr<IUnknown> DeviceUnk, UINT
 	desc.OutputWindow = m_Handle;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
-	desc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
+	desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	desc.Windowed = TRUE;
 
 	//This is the factory that made the application's device
@@ -116,7 +117,11 @@ HRESULT SwapChainController12::CreateSwapChain(CComPtr<IUnknown> DeviceUnk, UINT
 	hr = factory->CreateSwapChain (
 		DeviceUnk,
 		&desc,
-		&m_SwapChain
+		&BaseSwapChain
+	); RETURN_HR(__LINE__);
+
+	hr = BaseSwapChain->QueryInterface (
+		IID_PPV_ARGS(&m_SwapChain)
 	); RETURN_HR(__LINE__);
 
 	//Turn off alt-enter, since we're using F11 instead

@@ -1,17 +1,10 @@
-﻿Build started 8/26/2015 3:54:16 PM.
+﻿Build started 9/10/2015 6:27:06 PM.
      1>Project "C:\Users\Austin\Documents\COM Objects\DXWindow\DXWindowTest\DXWindowTest.vcxproj" on node 2 (Build target(s)).
-     1>FxCompile:
-         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"main" /T ps_5_0 /Fh "PixelShader.h" /Fo "C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\PixelShader.cso" /Vn "PixelShader" /Od /Zi PixelShader.hlsl 
-     1>C:\Users\Austin\Documents\COM Objects\DXWindow\DXWindowTest\PixelShader.hlsl(19,8-131): warning X3206: implicit truncation of vector type
-         
-         compilation header save succeeded; see C:\Users\Austin\Documents\COM Objects\DXWindow\DXWindowTest\PixelShader.h
-         compilation object save succeeded; see C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\PixelShader.cso
-         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\fxc.exe /nologo /E"main" /T vs_5_0 /Fh "VertexShader.h" /Fo "C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\VertexShader.cso" /Vn "VertexShader" /Od /Zi VertexShader.hlsl 
-         compilation header save succeeded; see C:\Users\Austin\Documents\COM Objects\DXWindow\DXWindowTest\VertexShader.h
-         compilation object save succeeded; see C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\VertexShader.cso
-       ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /I../DXWindow/ /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug12\\" /Fd"Debug12\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt Main.cpp
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /I../DXWindow/ /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _DXWINDOW_TEST_12 /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug12\\" /Fd"Debug12\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt Main.cpp
          Main.cpp
+     1>c:\users\austin\documents\com objects\dxwindow\dxwindowtest\main.cpp(494): warning C4101: 'CounterSeconds': unreferenced local variable
+     1>c:\users\austin\documents\com objects\dxwindow\dxwindowtest\main.cpp(493): warning C4101: 'liCounter': unreferenced local variable
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\DXWindowTest.exe" /INCREMENTAL /NOLOGO /LIBPATH:../Debug/ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\DXWindowTest.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\DXWindowTest.lib" /MACHINE:X86 Debug12\Main.obj
          DXWindowTest.vcxproj -> C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\DXWindowTest.exe
@@ -19,4 +12,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.35
+Time Elapsed 00:00:02.04

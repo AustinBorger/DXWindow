@@ -23,9 +23,10 @@
 #ifdef _DXWINDOW_SUPPORT_12
 
 #include "OutputEnum12.h"
+#include <d3d12.h>
 
 #define FILENAME L"OutputEnum12.cpp"
-#define CHECK_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(L"OutputEnum.cpp", Line, hr); return E_FAIL; }
+#define CHECK_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return E_FAIL; }
 
 OutputEnum12::OutputEnum12()
 { }
@@ -35,17 +36,31 @@ OutputEnum12::~OutputEnum12()
 
 HRESULT OutputEnum12::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowCallback> Callback) {
 	HRESULT hr = S_OK;
-	CComPtr<IDXGIDevice> DxgiDevice;
+	CComPtr<ID3D12CommandQueue> CommandQueue;
+	CComPtr<ID3D12Device> Device;
+	CComPtr<IDXGIFactory4> Factory;
 
 	m_Callback = Callback;
 
 	//All D3D11 devices implement IDXGIDevice
 	hr = DeviceUnk->QueryInterface (
-		IID_PPV_ARGS(&DxgiDevice)
+		IID_PPV_ARGS(&CommandQueue)
 	); CHECK_HR(__LINE__);
 
-	//The parent of a DXGI device is an adapter
-	hr = DxgiDevice->GetParent (
+	hr = CommandQueue->GetDevice (
+		IID_PPV_ARGS(&Device)
+	); CHECK_HR(__LINE__);
+
+	//Get the adapter's luid
+	LUID AdapterLuid = Device->GetAdapterLuid();
+
+	//Create a factory and find the adapter
+	hr = CreateDXGIFactory (
+		IID_PPV_ARGS(&Factory)
+	); CHECK_HR(__LINE__);
+
+	hr = Factory->EnumAdapterByLuid (
+		AdapterLuid,
 		IID_PPV_ARGS(&m_Adapter)
 	); CHECK_HR(__LINE__);
 

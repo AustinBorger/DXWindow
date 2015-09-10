@@ -288,20 +288,6 @@ int main() {
 				IID_PPV_ARGS(&CommandQueue)
 			); HANDLE_HR(__LINE__);
 
-			D3D12_DESCRIPTOR_HEAP_DESC DescriptorHeapDesc;
-			DescriptorHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-			DescriptorHeapDesc.NodeMask = NULL;
-			DescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-			DescriptorHeapDesc.NumDescriptors = 2;
-
-			hr = Device->CreateDescriptorHeap (
-				&DescriptorHeapDesc,
-				IID_PPV_ARGS(&DescriptorHeap)
-			); HANDLE_HR(__LINE__);
-
-			RenderTargetViewHandle = DescriptorHeap->GetCPUDescriptorHandleForHeapStart();
-			DescriptorSize = Device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
 			hr = Device->CreateCommandAllocator (
 				D3D12_COMMAND_LIST_TYPE_DIRECT,
 				IID_PPV_ARGS(&CommandAllocator)
@@ -315,7 +301,26 @@ int main() {
 				IID_PPV_ARGS(&CommandList)
 			); HANDLE_HR(__LINE__);
 
-			CComPtr<ID3D12VertexShader> VS;
+			hr = CommandList->Close(); HANDLE_HR(__LINE__);
+
+			hr = Device->CreateFence (
+				0,
+				D3D12_FENCE_FLAG_NONE,
+				IID_PPV_ARGS(&Fence)
+			); HANDLE_HR(__LINE__);
+
+			SetLastError(0);
+
+			FenceEvent = CreateEventExW (
+				NULL,
+				FALSE,
+				FALSE,
+				EVENT_ALL_ACCESS
+			); HANDLE_ERR(__LINE__);
+
+			FenceValue = 1;
+
+			/*CComPtr<ID3D12VertexShader> VS;
 			CComPtr<ID3D11PixelShader> PS;
 			CComPtr<ID3D11Buffer> TimeBuffer;
 
@@ -355,7 +360,7 @@ int main() {
 				&cBufferDesc,
 				&sub,
 				&TimeBuffer
-			); HANDLE_HR(__LINE__);
+			); HANDLE_HR(__LINE__);*/
 
 			DXWINDOW_DESC Desc;
 
@@ -374,7 +379,7 @@ int main() {
 
 			hr = DXWindowCreateWindow (
 				&Desc,
-				Device,
+				CommandQueue,
 				this,
 				&Window
 			); HANDLE_HR(__LINE__);
@@ -419,53 +424,71 @@ int main() {
 		}
 
 		VOID STDMETHODCALLTYPE OnBackBufferRelease(IDXWindow* Window) final {
-			std::cout << "OnBackBufferRelease()" << std::endl;
-			BackBufTex.Release();
-			BackBufRTV.Release();
+			RenderTargetResource[0].Release();
+			RenderTargetResource[1].Release();
+			RenderTargetHeap.Release();
+			RenderTargetViewHandle.ptr = 0;
+			RenderTargetBytes = 0;
 		}
 
 		VOID STDMETHODCALLTYPE OnBackBufferCreate(IDXWindow* Window) final {
 			HRESULT hr = S_OK;
 
-			RenderTargetViewHandle = DescriptorHeap->GetCPUDescriptorHandleForHeapStart();
+			D3D12_DESCRIPTOR_HEAP_DESC RenderTargetHeapDesc;
+			RenderTargetHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+			RenderTargetHeapDesc.NodeMask = NULL;
+			RenderTargetHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+			RenderTargetHeapDesc.NumDescriptors = 2;
 
-			UINT RenderTargetBytes = Device->GetDescriptorHandleIncrementSize (
+			hr = Device->CreateDescriptorHeap (
+				&RenderTargetHeapDesc,
+				IID_PPV_ARGS(&RenderTargetHeap)
+			); HANDLE_HR(__LINE__);
+
+			RenderTargetViewHandle = RenderTargetHeap->GetCPUDescriptorHandleForHeapStart();
+
+			RenderTargetBytes = Device->GetDescriptorHandleIncrementSize (
 				D3D12_DESCRIPTOR_HEAP_TYPE_RTV
 			);
 
-			Window->GetBuffer(0, IID_PPV_ARGS(&RenderTargetResourceA));
+			Window->GetBuffer(0, IID_PPV_ARGS(&RenderTargetResource[0]));
 
 			Device->CreateRenderTargetView (
-				RenderTargetResourceA,
+				RenderTargetResource[0],
 				nullptr,
 				RenderTargetViewHandle
 			);
 
 			RenderTargetViewHandle.ptr += RenderTargetBytes;
 
-			Window->GetBuffer(1, IID_PPV_ARGS(&RenderTargetResourceB));
+			Window->GetBuffer(1, IID_PPV_ARGS(&RenderTargetResource[1]));
 
 			Device->CreateRenderTargetView (
-				RenderTargetResourceB,
+				RenderTargetResource[1],
 				nullptr,
 				RenderTargetViewHandle
 			);
+
+			D3D12_RESOURCE_DESC ResourceDesc = RenderTargetResource[0]->GetDesc();
 
 			Viewport.MaxDepth = 1.0f;
 			Viewport.MinDepth = 0.0f;
 			Viewport.TopLeftX = 0.0f;
 			Viewport.TopLeftY = 0.0f;
-			Viewport.Width = (FLOAT)(Desc.Width);
-			Viewport.Height = (FLOAT)(Desc.Height);
+			Viewport.Width = (FLOAT)(ResourceDesc.Width);
+			Viewport.Height = (FLOAT)(ResourceDesc.Height);
 
-			hr = Device->CreateRenderTargetView (
-				BackBufTex,
-				nullptr,
-				&BackBufRTV
-			); HANDLE_HR(__LINE__);
+			BufferIndex = 0;
 		}
 
 		VOID Run() {
+			HRESULT hr = S_OK;
+
+			D3D12_RESOURCE_BARRIER Barrier;
+			D3D12_CPU_DESCRIPTOR_HANDLE RenderTargetViewPtr;
+			ID3D12CommandList* ppCommandLists[1];
+			unsigned long long FenceToWaitFor = 0;
+
 			LARGE_INTEGER liFrequency;
 			LARGE_INTEGER liCounter;
 			double CounterSeconds;
@@ -474,7 +497,67 @@ int main() {
 			while (run) {
 				Window->PumpMessages();
 
+				hr = CommandAllocator->Reset(); HANDLE_HR(__LINE__);
+
+				hr = CommandList->Reset (
+					CommandAllocator,
+					nullptr
+				); HANDLE_HR(__LINE__);
+
+				Barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+				Barrier.Transition.pResource = RenderTargetResource[BufferIndex];
+				Barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
+				Barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
+				Barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+				Barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+				Barrier.UAV.pResource = nullptr;
+				Barrier.Aliasing.pResourceAfter = nullptr;
+				Barrier.Aliasing.pResourceBefore = nullptr;
+
+				//CommandList->ResourceBarrier(1, &Barrier);
+
+				RenderTargetViewPtr.ptr = RenderTargetViewHandle.ptr + BufferIndex * RenderTargetBytes;
+
+				//CommandList->OMSetRenderTargets(1, &RenderTargetViewPtr, FALSE, nullptr);
+
 				FLOAT color[] = { 1.0, 1.0, 1.0, 1.0 };
+
+				//CommandList->ClearRenderTargetView(RenderTargetViewHandle, color, 0, nullptr);
+
+				Barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
+				Barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+
+				//CommandList->ResourceBarrier(1, &Barrier);
+
+				hr = CommandList->Close(); HANDLE_HR(__LINE__);
+
+				ppCommandLists[0] = CommandList;
+
+				CommandQueue->ExecuteCommandLists(1, ppCommandLists);
+
+				Window->Present(1, 0);
+
+				FenceToWaitFor = FenceValue;
+
+				hr = CommandQueue->Signal (
+					Fence,
+					FenceToWaitFor
+				); HANDLE_HR(__LINE__);
+
+				FenceValue++;
+
+				if (Fence->GetCompletedValue() < FenceToWaitFor) {
+					hr = Fence->SetEventOnCompletion (
+						FenceToWaitFor,
+						FenceEvent
+					); HANDLE_HR(__LINE__);
+
+					WaitForSingleObject(FenceEvent, INFINITE);
+				}
+
+				BufferIndex = 1 - BufferIndex;
+
+				/*FLOAT color[] = { 1.0, 1.0, 1.0, 1.0 };
 
 				x.DeviceContext->ClearRenderTargetView(x.BackBufRTV, color);
 
@@ -497,28 +580,30 @@ int main() {
 				x.DeviceContext->OMSetRenderTargets(1, &rtv, nullptr);
 				x.DeviceContext->IASetInputLayout(nullptr);
 				x.DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				x.DeviceContext->Draw(3, 0);
-
-				Window->Present(1, 0);
+				x.DeviceContext->Draw(3, 0);*/
 			}
 		}
 
 	private:
 		bool run;
-		CComPtr<ID3D11Texture2D> BackBufTex;
-		CComPtr<ID3D11RenderTargetView> BackBufRTV;
+
+		CComPtr<IDXWindow> Window;
+
 		CComPtr<ID3D12Device> Device;
 		CComPtr<ID3D12CommandQueue> CommandQueue;
 		CComPtr<ID3D12CommandAllocator> CommandAllocator;
-		CComPtr<ID3D12CommandList> CommandList;
-		CComPtr<ID3D12DescriptorHeap> DescriptorHeap;
-		CComPtr<ID3D12Resource> RenderTargetResourceA;
-		CComPtr<ID3D12Resource> RenderTargetResourceB;
-		D3D12_VIEWPORT Viewport;
-		CComPtr<IDXWindow> Window;
+		CComPtr<ID3D12GraphicsCommandList> CommandList;
+		CComPtr<ID3D12DescriptorHeap> RenderTargetHeap;
+		CComPtr<ID3D12Resource> RenderTargetResource[2];
+		CComPtr<ID3D12Fence> Fence;
+		CComPtr<ID3D12PipelineState> PipelineState;
 
+		D3D12_VIEWPORT Viewport;
 		D3D12_CPU_DESCRIPTOR_HANDLE RenderTargetViewHandle;
-		UINT DescriptorSize;
+		UINT RenderTargetBytes;
+		HANDLE FenceEvent;
+		UINT BufferIndex;
+		unsigned long long FenceValue;
 	} x;
 
 	x.Run();
