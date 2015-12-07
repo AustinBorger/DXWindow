@@ -189,6 +189,16 @@ VOID SwapChainController::ToggleFullscreen() {
 		mode.Width = DesktopArea.right - DesktopArea.left;
 		mode.Height = DesktopArea.bottom - DesktopArea.top;
 
+		// CONSOLE OUTPUT
+
+#ifdef _DEBUG
+
+		std::wcout << "SwapChainController::ToggleFullscreen():" << std::endl;
+		std::wcout << "\t" << "mode.Width: " << mode.Width << std::endl;
+		std::wcout << "\t" << "mode.Height: " << mode.Height << std::endl;
+
+#endif
+
 		//ResizeTarget() should be called before SetFullscreenState(), as per MSDN recommendations
 		hr = m_SwapChain->ResizeTarget (
 			&mode
