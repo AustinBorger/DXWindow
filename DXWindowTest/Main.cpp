@@ -24,7 +24,12 @@
 #include "QueryInterface.h"
 #include <atlbase.h>
 #include <string>
+
+#ifdef _DEBUG
+
 #include <iostream>
+
+#endif
 
 #include "VertexShader.h"
 #include "PixelShader.h"

@@ -22,7 +22,12 @@
 
 #include "SwapChainController.h"
 #include "CDXWindow.h"
+
+#ifdef _DEBUG
+
 #include <iostream>
+
+#endif
 
 #define FILENAME L"SwapChainController.cpp"
 #define CHECK_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return; }
@@ -105,6 +110,16 @@ HRESULT SwapChainController::CreateSwapChain(CComPtr<IUnknown> DeviceUnk, UINT N
 	desc.SampleDesc.Quality = 0;
 	desc.SwapEffect = DXGI_SWAP_EFFECT_SEQUENTIAL;
 	desc.Windowed = TRUE;
+
+	// CONSOLE OUTPUT
+
+#ifdef _DEBUG
+
+	std::wcout << "SwapChainController::CreateSwapChain():" << std::endl;
+	std::wcout << "\t" << "Buffer Width: " << desc.BufferDesc.Width << std::endl;
+	std::wcout << "\t" << "Buffer Height: " << desc.BufferDesc.Height << std::endl;
+
+#endif
 
 	//This is the factory that made the application's device
 	hr = m_OutputEnum.GetAdapter()->GetParent (

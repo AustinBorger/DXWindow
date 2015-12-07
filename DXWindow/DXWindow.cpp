@@ -32,6 +32,12 @@
 
 #endif
 
+#ifdef _DEBUG
+
+#include <iostream>
+
+#endif
+
 #pragma comment(lib, "XInput9_1_0.lib")
 #pragma comment(lib, "dxgi.lib")
 
@@ -54,6 +60,15 @@ HRESULT DXWindowCreateWindow (
 	hr = pDevice->QueryInterface(__uuidof(ID3D11Device), &pv);
 
 	if (SUCCEEDED(hr)) {
+		// CONSOLE OUTPUT
+
+#ifdef _DEBUG
+
+		std::wcout << "DXWindowCreateWindow():" << std::endl;
+		std::wcout << "\t" << "Direct3D 11 Device detected.  Using DirectX 11." << std::endl;
+
+#endif
+
 		pDevice->Release(); //reduce refcount after call to QueryInterface
 
 		CComPtr<CDXWindow> Window = new CDXWindow();
@@ -75,6 +90,15 @@ HRESULT DXWindowCreateWindow (
 	hr = pDevice->QueryInterface(__uuidof(ID3D12CommandQueue), &pv);
 
 	if (SUCCEEDED(hr)) {
+		// CONSOLE OUTPUT
+
+#ifdef _DEBUG
+
+		std::wcout << "DXWindowCreateWindow():" << std::endl;
+		std::wcout << "\t" << "Direct3D 12 Command Queue detected.  Using DirectX 12." << std::endl;
+
+#endif
+
 		pDevice->Release(); //reduce refcount after call to QueryInterface
 
 		CComPtr<CDXWindow12> Window = new CDXWindow12();

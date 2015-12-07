@@ -22,7 +22,12 @@
 
 #include "Output.h"
 #include <vector>
+
+#ifdef _DEBUG
+
 #include <iostream>
+
+#endif
 
 #define FILENAME L"Output.cpp"
 #define CHECK_HR(Line) if (FAILED(hr)) m_Callback->OnObjectFailure(FILENAME, Line, hr)
