@@ -209,6 +209,11 @@ VOID SwapChainController::ToggleFullscreen() {
 			obj
 		); CHECK_HR(__LINE__);
 
+		// Another one for good luck
+		hr = m_SwapChain->ResizeTarget (
+			&mode
+		); CHECK_HR(__LINE__);
+
 		// CONSOLE OUTPUT
 
 #ifdef _DEBUG
