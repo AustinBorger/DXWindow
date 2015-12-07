@@ -1,21 +1,8 @@
-﻿Build started 10/30/2015 9:12:34 PM.
+﻿Build started 12/7/2015 2:36:56 AM.
      1>Project "C:\Users\Austin\Documents\COM Objects\DXWindow\DXWindow\DXWindow.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _DXWINDOW_DLL_PROJECT /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt CDXWindow.cpp CDXWindow12.cpp GamepadMessageDispatcher12.cpp Output12.cpp OutputEnum.cpp DXWindow.cpp GamepadMessageDispatcher.cpp Output.cpp OutputEnum12.cpp SwapChainController.cpp SwapChainController12.cpp WindowMessageDispatcher.cpp WindowMessageDispatcher12.cpp
-         WindowMessageDispatcher12.cpp
-         WindowMessageDispatcher.cpp
-         SwapChainController12.cpp
-         SwapChainController.cpp
-         OutputEnum12.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _DXWINDOW_DLL_PROJECT /D _WINDLL /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt Output.cpp
          Output.cpp
-         GamepadMessageDispatcher.cpp
-         DXWindow.cpp
-         OutputEnum.cpp
-         Output12.cpp
-         GamepadMessageDispatcher12.cpp
-         CDXWindow12.cpp
-         CDXWindow.cpp
-         Generating Code...
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Austin\Documents\COM Objects\DXWindow\Debug\DXWindow.dll" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Austin\Documents\COM Objects\DXWindow\Debug\DXWindow.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Austin\Documents\COM Objects\DXWindow\Debug\DXWindow.lib" /MACHINE:X86 /DLL Debug\CDXWindow.obj
          Debug\CDXWindow12.obj
@@ -30,10 +17,9 @@
          Debug\SwapChainController12.obj
          Debug\WindowMessageDispatcher.obj
          Debug\WindowMessageDispatcher12.obj
-            Creating library C:\Users\Austin\Documents\COM Objects\DXWindow\Debug\DXWindow.lib and object C:\Users\Austin\Documents\COM Objects\DXWindow\Debug\DXWindow.exp
          DXWindow.vcxproj -> C:\Users\Austin\Documents\COM Objects\DXWindow\Debug\DXWindow.dll
      1>Done Building Project "C:\Users\Austin\Documents\COM Objects\DXWindow\DXWindow\DXWindow.vcxproj" (Build target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:09.05
+Time Elapsed 00:00:01.53

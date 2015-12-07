@@ -22,6 +22,7 @@
 
 #include "Output.h"
 #include <vector>
+#include <iostream>
 
 #define FILENAME L"Output.cpp"
 #define CHECK_HR(Line) if (FAILED(hr)) m_Callback->OnObjectFailure(FILENAME, Line, hr)
@@ -48,6 +49,33 @@ VOID Output::Initialize(CComPtr<IDXGIOutput> obj, CComPtr<IDXWindowCallback> Cal
 	hr = m_Obj->GetDesc (
 		&m_Desc
 	); CHECK_HR(__LINE__);
+
+	// CONSOLE OUTPUT
+
+	const wchar_t* rotation = nullptr;
+
+	if (m_Desc.Rotation == DXGI_MODE_ROTATION_IDENTITY) {
+		rotation = L"DXGI_MODE_ROTATION_IDENTITY";
+	} else if (m_Desc.Rotation == DXGI_MODE_ROTATION_ROTATE90) {
+		rotation = L"DXGI_MODE_ROTATION_ROTATE90";
+	} else if (m_Desc.Rotation == DXGI_MODE_ROTATION_ROTATE180) {
+		rotation = L"DXGI_MODE_ROTATION_ROTATE180";
+	} else if (m_Desc.Rotation == DXGI_MODE_ROTATION_ROTATE270) {
+		rotation = L"DXGI_MODE_ROTATION_ROTATE270";
+	} else {
+		rotation = L"DXGI_MODE_ROTATION_UNSPECIFIED";
+	}
+
+	std::wcout << "Output::Initialize():" << std::endl;
+	std::wcout << "\t" << "AttachedToDesktop: " << (m_Desc.AttachedToDesktop ? "true" : "false") << std::endl;
+	std::wcout << "\t" << "DesktopCoordinates.left: " << m_Desc.DesktopCoordinates.left << std::endl;
+	std::wcout << "\t" << "DesktopCoordinates.right: " << m_Desc.DesktopCoordinates.right << std::endl;
+	std::wcout << "\t" << "DesktopCoordinates.top: " << m_Desc.DesktopCoordinates.top << std::endl;
+	std::wcout << "\t" << "DesktopCoordinates.bottom: " << m_Desc.DesktopCoordinates.bottom << std::endl;
+	std::wcout << "\t" << "DeviceName: " << m_Desc.DeviceName << std::endl;
+	std::wcout << "\t" << "Monitor: 0x" << (void*)(m_Desc.Monitor) << std::endl;
+	std::wcout << "\t" << "Rotation: " << rotation << std::endl;
+	std::wcout << std::endl;
 }
 
 VOID Output::GetWindowCenter(UINT Width, UINT Height, RECT* pRect, DWORD dwStyle, DWORD dwExStyle) {
@@ -85,6 +113,15 @@ VOID Output::GetWindowCenter(UINT Width, UINT Height, RECT* pRect, DWORD dwStyle
 	); CHECK_BRESULT(__LINE__);
 
 	*pRect = center;
+
+	// CONSOLE OUTPUT
+
+	std::wcout << "Output::GetWindowCenter():" << std::endl;
+	std::wcout << "\t" << "width (including border): " << pRect->right - pRect->left << std::endl;
+	std::wcout << "\t" << "height (including border): " << pRect->bottom - pRect->top << std::endl;
+	std::wcout << "\t" << "xPos: " << pRect->left << std::endl;
+	std::wcout << "\t" << "yPos: " << pRect->top << std::endl;
+	std::wcout << std::endl;
 }
 
 VOID Output::GetWorkArea(RECT* pRect) {
@@ -101,6 +138,15 @@ VOID Output::GetWorkArea(RECT* pRect) {
 	); CHECK_BRESULT(__LINE__);
 
 	*pRect = m.rcWork;
+
+	// CONSOLE OUTPUT
+
+	std::wcout << "Output::GetWorkArea():" << std::endl;
+	std::wcout << "\t" << "width: " << pRect->right - pRect->left << std::endl;
+	std::wcout << "\t" << "height: " << pRect->bottom - pRect->top << std::endl;
+	std::wcout << "\t" << "xPos: " << pRect->left << std::endl;
+	std::wcout << "\t" << "yPos: " << pRect->top << std::endl;
+	std::wcout << std::endl;
 }
 
 VOID Output::GetDesktopArea(RECT* pRect) {
@@ -117,4 +163,11 @@ VOID Output::GetDesktopArea(RECT* pRect) {
 	); CHECK_BRESULT(__LINE__);
 
 	*pRect = m.rcMonitor;
+
+	// CONSOLE OUTPUT
+
+	std::wcout << "Output::GetDesktopArea():" << std::endl;
+	std::wcout << "\t" << "width: " << pRect->right - pRect->left << std::endl;
+	std::wcout << "\t" << "height: " << pRect->bottom - pRect->top << std::endl;
+	std::wcout << std::endl;
 }
