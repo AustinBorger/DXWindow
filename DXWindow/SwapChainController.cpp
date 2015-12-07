@@ -22,6 +22,7 @@
 
 #include "SwapChainController.h"
 #include "CDXWindow.h"
+#include <iostream>
 
 #define FILENAME L"SwapChainController.cpp"
 #define CHECK_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return; }
@@ -152,11 +153,20 @@ VOID SwapChainController::ToggleFullscreen() {
 
 	BOOL Fullscreen = IsFullscreen();
 
+	// CONSOLE OUTPUT
+
+#ifdef _DEBUG
+
+	std::wcout << "SwapChainController::ToggleFullscreen():" << std::endl;
+	std::wcout << "\t" << "Currently Fullscreen? " << (Fullscreen ? "true" : "false") << std::endl;
+
+#endif
+
 	if (Fullscreen == FALSE) { //Not in fullscreen currently, let's enter
 		RECT DesktopArea;
 
 		Output* output = m_OutputEnum.SearchOutput(m_Handle);
-		output->GetDesktopArea(&DesktopArea);
+		output->GetDesktopArea(&DesktopArea); //Outputs its own diagnostics to the console
 
 		DXGI_MODE_DESC mode; Zero(mode);
 		CComPtr<IDXGIOutput> obj = output->GetObj();
@@ -174,12 +184,31 @@ VOID SwapChainController::ToggleFullscreen() {
 			obj
 		); CHECK_HR(__LINE__);
 
+		// CONSOLE OUTPUT
+
+#ifdef _DEBUG
+
+		std::wcout << "SwapChainController::ToggleFullscreen():" << std::endl;
+		std::wcout << "\t" << "Successfully set exclusive fullscreen state to TRUE." << std::endl;
+
+#endif
+
 		ResizeBuffers();
 	} else {
 		hr = m_SwapChain->SetFullscreenState (
 			FALSE,
 			nullptr
 		); CHECK_HR(__LINE__);
+
+		// CONSOLE OUTPUT
+
+#ifdef _DEBUG
+
+		std::wcout << "SwapChainController::ToggleFullscreen():" << std::endl;
+		std::wcout << "\t" << "Successfully set exclusive fullscreen state to FALSE." << std::endl;
+
+#endif
+
 	}
 }
 
@@ -194,4 +223,13 @@ VOID SwapChainController::ResizeBuffers() {
 		DXGI_FORMAT_UNKNOWN,					//DXGI_FORMAT NewFormat
 		DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH	//UINT SwapChainFlags
 	); CHECK_HR(__LINE__);
+
+	// CONSOLE OUTPUT
+
+#ifdef _DEBUG
+
+	std::wcout << "SwapChainController::ResizeBuffers()" << std::endl;
+
+#endif
+
 }

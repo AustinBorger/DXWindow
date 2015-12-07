@@ -52,6 +52,8 @@ VOID Output::Initialize(CComPtr<IDXGIOutput> obj, CComPtr<IDXWindowCallback> Cal
 
 	// CONSOLE OUTPUT
 
+#ifdef _DEBUG
+
 	const wchar_t* rotation = nullptr;
 
 	if (m_Desc.Rotation == DXGI_MODE_ROTATION_IDENTITY) {
@@ -72,10 +74,14 @@ VOID Output::Initialize(CComPtr<IDXGIOutput> obj, CComPtr<IDXWindowCallback> Cal
 	std::wcout << "\t" << "DesktopCoordinates.right: " << m_Desc.DesktopCoordinates.right << std::endl;
 	std::wcout << "\t" << "DesktopCoordinates.top: " << m_Desc.DesktopCoordinates.top << std::endl;
 	std::wcout << "\t" << "DesktopCoordinates.bottom: " << m_Desc.DesktopCoordinates.bottom << std::endl;
+	std::wcout << "\t" << "DesktopCoordinates - width: " << m_Desc.DesktopCoordinates.right - m_Desc.DesktopCoordinates.left << std::endl;
+	std::wcout << "\t" << "DesktopCoordinates - height: " << m_Desc.DesktopCoordinates.bottom - m_Desc.DesktopCoordinates.top << std::endl;
 	std::wcout << "\t" << "DeviceName: " << m_Desc.DeviceName << std::endl;
 	std::wcout << "\t" << "Monitor: 0x" << (void*)(m_Desc.Monitor) << std::endl;
 	std::wcout << "\t" << "Rotation: " << rotation << std::endl;
-	std::wcout << std::endl;
+
+#endif
+
 }
 
 VOID Output::GetWindowCenter(UINT Width, UINT Height, RECT* pRect, DWORD dwStyle, DWORD dwExStyle) {
@@ -116,12 +122,16 @@ VOID Output::GetWindowCenter(UINT Width, UINT Height, RECT* pRect, DWORD dwStyle
 
 	// CONSOLE OUTPUT
 
+#ifdef _DEBUG
+
 	std::wcout << "Output::GetWindowCenter():" << std::endl;
 	std::wcout << "\t" << "width (including border): " << pRect->right - pRect->left << std::endl;
 	std::wcout << "\t" << "height (including border): " << pRect->bottom - pRect->top << std::endl;
 	std::wcout << "\t" << "xPos: " << pRect->left << std::endl;
 	std::wcout << "\t" << "yPos: " << pRect->top << std::endl;
-	std::wcout << std::endl;
+
+#endif
+
 }
 
 VOID Output::GetWorkArea(RECT* pRect) {
@@ -141,12 +151,16 @@ VOID Output::GetWorkArea(RECT* pRect) {
 
 	// CONSOLE OUTPUT
 
+#ifdef _DEBUG
+
 	std::wcout << "Output::GetWorkArea():" << std::endl;
 	std::wcout << "\t" << "width: " << pRect->right - pRect->left << std::endl;
 	std::wcout << "\t" << "height: " << pRect->bottom - pRect->top << std::endl;
 	std::wcout << "\t" << "xPos: " << pRect->left << std::endl;
 	std::wcout << "\t" << "yPos: " << pRect->top << std::endl;
-	std::wcout << std::endl;
+
+#endif
+
 }
 
 VOID Output::GetDesktopArea(RECT* pRect) {
@@ -166,8 +180,12 @@ VOID Output::GetDesktopArea(RECT* pRect) {
 
 	// CONSOLE OUTPUT
 
+#ifdef _DEBUG
+
 	std::wcout << "Output::GetDesktopArea():" << std::endl;
 	std::wcout << "\t" << "width: " << pRect->right - pRect->left << std::endl;
 	std::wcout << "\t" << "height: " << pRect->bottom - pRect->top << std::endl;
-	std::wcout << std::endl;
+
+#endif
+
 }

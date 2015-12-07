@@ -66,7 +66,17 @@ void HandleHR(LPCWSTR File, UINT Line, HRESULT hr) {
 
 #ifdef _DXWINDOW_TEST_11
 
+// MAIN FUNCTION SIGNATURE DEPENDENT ON DEBUG OR RELEASE
+#ifdef _DEBUG
+
 int main() {
+
+#else
+
+int APIENTRY wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int) {
+
+#endif
+
 	CComPtr<IDXWindow> Window;
 
 	class X : public CDXWindowCallback {
@@ -112,7 +122,14 @@ int main() {
 		}
 
 		VOID STDMETHODCALLTYPE OnBackBufferRelease(IDXWindow* Window) final {
-			std::cout << "OnBackBufferRelease()" << std::endl;
+			// CONSOLE OUTPUT
+
+#ifdef _DEBUG
+
+			std::wcout << "OnBackBufferRelease()" << std::endl;
+
+#endif
+
 			BackBufTex.Release();
 			BackBufRTV.Release();
 		}
@@ -132,7 +149,15 @@ int main() {
 			viewport.Width = (FLOAT)(Desc.Width);
 			viewport.Height = (FLOAT)(Desc.Height);
 
-			std::cout << "New back buffer: " << viewport.Width << ", " << viewport.Height << std::endl;
+			// CONSOLE OUTPUT
+
+#ifdef _DEBUG
+
+			std::wcout << "OnBackBufferCreate():" << std::endl;
+			std::wcout << "\t" << "Back Buffer Width: " << viewport.Width << std::endl;
+			std::wcout << "\t" << "Back Buffer Height: " << viewport.Height << std::endl;
+
+#endif
 
 			hr = Device->CreateRenderTargetView (
 				BackBufTex,
