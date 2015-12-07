@@ -1,7 +1,7 @@
 Important Notices
 =========
 
-Currently, the DirectX 12 examples and code do not work.  This is because there
+- Currently, the DirectX 12 examples and code do not work.  This is because there
 is not a sufficient amount of information out there yet for me to write the library
 to support it.  Once this changes, I will be updating this repository to reflect that.
 
