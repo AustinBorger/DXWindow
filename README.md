@@ -155,5 +155,5 @@ New contributors are very welcome, as currently this code base is maintained by
 just one person (me).  If DXWindow proves useful for you, but doesn't meet your
 standards, please send feedback to my email at <aaborger@gmail.com>.
 
-- A thank you goes out to the user startas, who reported an issue with the back buffer size upon entering
+- A thank you goes out to the user _startas_, who reported an issue with the back buffer size upon entering
 exclusive fullscreen mode.
