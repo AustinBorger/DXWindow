@@ -48,6 +48,7 @@
 #elif defined(_DXWINDOW_TEST_12)
 
 #include <d3d12.h>
+
 #pragma comment(lib, "d3d12.lib")
 
 #endif
@@ -510,15 +511,14 @@ int main() {
 					nullptr
 				); HANDLE_HR(__LINE__);
 
+				CommandList->RSSetViewports(1, &Viewport);
+
 				Barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 				Barrier.Transition.pResource = RenderTargetResource[BufferIndex];
 				Barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
 				Barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
 				Barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 				Barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-				Barrier.UAV.pResource = nullptr;
-				Barrier.Aliasing.pResourceAfter = nullptr;
-				Barrier.Aliasing.pResourceBefore = nullptr;
 
 				CommandList->ResourceBarrier(1, &Barrier);
 
@@ -530,8 +530,12 @@ int main() {
 
 				CommandList->ClearRenderTargetView(RenderTargetViewHandle, color, 0, nullptr);
 
+				Barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+				Barrier.Transition.pResource = RenderTargetResource[BufferIndex];
 				Barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 				Barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
+				Barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+				Barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 
 				CommandList->ResourceBarrier(1, &Barrier);
 
