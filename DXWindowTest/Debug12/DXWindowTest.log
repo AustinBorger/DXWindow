@@ -1,4 +1,4 @@
 ﻿  Main.cpp
-c:\users\austin\documents\com objects\dxwindow\dxwindowtest\main.cpp(501): warning C4101: 'CounterSeconds': unreferenced local variable
-c:\users\austin\documents\com objects\dxwindow\dxwindowtest\main.cpp(500): warning C4101: 'liCounter': unreferenced local variable
+c:\users\austin\documents\com objects\dxwindow\dxwindowtest\main.cpp(555): warning C4101: 'CounterSeconds': unreferenced local variable
+c:\users\austin\documents\com objects\dxwindow\dxwindowtest\main.cpp(554): warning C4101: 'liCounter': unreferenced local variable
   DXWindowTest.vcxproj -> C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\DXWindowTest.exe

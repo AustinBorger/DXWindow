@@ -37,8 +37,8 @@
 #pragma comment(lib, "DXWindow.lib")
 
 #define FILENAME L"Main.cpp"
-#define HANDLE_HR(Line) HandleHR(FILENAME, Line, hr)
-#define HANDLE_ERR(Line) HandleHR(FILENAME, Line, HRESULT_FROM_WIN32(GetLastError()))
+#define HANDLE_HR(Line) if (FAILED(hr)) { OnObjectFailure(FILENAME, Line, hr); }
+#define HANDLE_ERR(Line) if (FAILED(HRESULT_FROM_WIN32(GetLastError()))) { OnObjectFailure(FILENAME, Line, HRESULT_FROM_WIN32(GetLastError())); }
 
 #ifdef _DXWINDOW_TEST_11
 
@@ -83,11 +83,82 @@ int APIENTRY wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int) {
 
 #endif
 
-	CComPtr<IDXWindow> Window;
-
 	class X : public CDXWindowCallback {
 	public:
-		X() : run(true) { }
+		X() : run(true) {
+			DXWINDOW_DESC Desc;
+
+			Desc.AllowToggle = TRUE;
+			Desc.Cursor = NULL;
+			Desc.FullscreenState = DXWINDOW_FULLSCREEN_STATE_FULLSCREEN;
+			Desc.Height = 720;
+			Desc.IconLarge = NULL;
+			Desc.IconSmall = NULL;
+			Desc.InitFullscreen = FALSE;
+			Desc.Instance = GetModuleHandleW(NULL);
+			Desc.NumBuffers = 2;
+			Desc.Title = L"DXWindowTest";
+			Desc.Width = 1280;
+			Desc.WindowState = DXWINDOW_WINDOW_STATE_WINDOWED;
+
+			HRESULT hr = D3D11CreateDevice (
+				nullptr,
+				D3D_DRIVER_TYPE_HARDWARE,
+				NULL,
+				NULL,
+				NULL,
+				0,
+				D3D11_SDK_VERSION,
+				&Device,
+				NULL,
+				&DeviceContext
+			); HANDLE_HR(__LINE__);
+
+			hr = Device->CreateVertexShader (
+				VertexShader,
+				sizeof(VertexShader),
+				nullptr,
+				&VS
+			); HANDLE_HR(__LINE__);
+
+			hr = Device->CreatePixelShader (
+				PixelShader,
+				sizeof(PixelShader),
+				nullptr,
+				&PS
+			); HANDLE_HR(__LINE__);
+
+			struct Info {
+				float time;
+				float pad[7];
+			} i;
+
+			D3D11_BUFFER_DESC cBufferDesc = { 0 };
+			cBufferDesc.ByteWidth = sizeof(Info);
+			cBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+			cBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			cBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			cBufferDesc.MiscFlags = NULL;
+			cBufferDesc.StructureByteStride = 0;
+
+			D3D11_SUBRESOURCE_DATA sub;
+			sub.pSysMem = &i;
+			sub.SysMemPitch = 0;
+			sub.SysMemSlicePitch = 0;
+
+			hr = Device->CreateBuffer (
+				&cBufferDesc,
+				&sub,
+				&TimeBuffer
+			); HANDLE_HR(__LINE__);
+
+			hr = DXWindowCreateWindow (
+				&Desc,
+				Device,
+				this,
+				&Window
+			); HANDLE_HR(__LINE__);
+		}
 
 		STDMETHODIMP QueryInterface(REFIID riid, void** ppvObject) {
 			QUERY_INTERFACE_CAST(IDXWindowCallback);
@@ -148,20 +219,20 @@ int APIENTRY wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int) {
 			D3D11_TEXTURE2D_DESC Desc;
 			BackBufTex->GetDesc(&Desc);
 
-			viewport.MaxDepth = 1.0f;
-			viewport.MinDepth = 0.0f;
-			viewport.TopLeftX = 0.0f;
-			viewport.TopLeftY = 0.0f;
-			viewport.Width = (FLOAT)(Desc.Width);
-			viewport.Height = (FLOAT)(Desc.Height);
+			Viewport.MaxDepth = 1.0f;
+			Viewport.MinDepth = 0.0f;
+			Viewport.TopLeftX = 0.0f;
+			Viewport.TopLeftY = 0.0f;
+			Viewport.Width = (FLOAT)(Desc.Width);
+			Viewport.Height = (FLOAT)(Desc.Height);
 
 			// CONSOLE OUTPUT
 
 #ifdef _DEBUG
 
 			std::wcout << "OnBackBufferCreate():" << std::endl;
-			std::wcout << "\t" << "Back Buffer Width: " << viewport.Width << std::endl;
-			std::wcout << "\t" << "Back Buffer Height: " << viewport.Height << std::endl;
+			std::wcout << "\t" << "Back Buffer Width: " << Viewport.Width << std::endl;
+			std::wcout << "\t" << "Back Buffer Height: " << Viewport.Height << std::endl;
 
 #endif
 
@@ -172,126 +243,63 @@ int APIENTRY wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int) {
 			); HANDLE_HR(__LINE__);
 		}
 
+		VOID Run() {
+			LARGE_INTEGER liFrequency;
+			LARGE_INTEGER liCounter;
+			double CounterSeconds;
+			QueryPerformanceFrequency(&liFrequency);
+
+			struct Info {
+				float time;
+				float pad[7];
+			} i;
+
+			while (run) {
+				Window->PumpMessages();
+
+				FLOAT color[] = { 1.0, 1.0, 1.0, 1.0 };
+
+				DeviceContext->ClearRenderTargetView(BackBufRTV, color);
+
+				QueryPerformanceCounter(&liCounter);
+				CounterSeconds = double(liCounter.QuadPart) / double(liFrequency.QuadPart);
+				i.time = float(CounterSeconds);
+				D3D11_MAPPED_SUBRESOURCE sub;
+				ZeroMemory(&sub, sizeof(sub));
+				DeviceContext->Map(TimeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub);
+				memcpy(sub.pData, &i, sizeof(Info));
+				DeviceContext->Unmap(TimeBuffer, 0);
+
+				ID3D11RenderTargetView* rtv = BackBufRTV;
+				ID3D11Buffer* timeBuffer = TimeBuffer;
+
+				DeviceContext->RSSetViewports(1, &Viewport);
+				DeviceContext->VSSetShader(VS, nullptr, 0);
+				DeviceContext->PSSetShader(PS, nullptr, 0);
+				DeviceContext->PSSetConstantBuffers(0, 1, &timeBuffer);
+				DeviceContext->OMSetRenderTargets(1, &rtv, nullptr);
+				DeviceContext->IASetInputLayout(nullptr);
+				DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+				DeviceContext->Draw(3, 0);
+
+				Window->Present(1, 0);
+			}
+		}
+
 		bool run;
 		CComPtr<ID3D11Texture2D> BackBufTex;
 		CComPtr<ID3D11RenderTargetView> BackBufRTV;
 		CComPtr<ID3D11Device> Device;
 		CComPtr<ID3D11DeviceContext> DeviceContext;
-		D3D11_VIEWPORT viewport;
+		CComPtr<ID3D11VertexShader> VS;
+		CComPtr<ID3D11PixelShader> PS;
+		CComPtr<ID3D11Buffer> TimeBuffer;
+		D3D11_VIEWPORT Viewport;
+
+		CComPtr<IDXWindow> Window;
 	} x;
 
-	DXWINDOW_DESC Desc;
-
-	Desc.AllowToggle = TRUE;
-	Desc.Cursor = NULL;
-	Desc.FullscreenState = DXWINDOW_FULLSCREEN_STATE_FULLSCREEN;
-	Desc.Height = 720;
-	Desc.IconLarge = NULL;
-	Desc.IconSmall = NULL;
-	Desc.InitFullscreen = FALSE;
-	Desc.Instance = GetModuleHandleW(NULL);
-	Desc.NumBuffers = 2;
-	Desc.Title = L"DXWindowTest";
-	Desc.Width = 1280;
-	Desc.WindowState = DXWINDOW_WINDOW_STATE_WINDOWED;
-
-	HRESULT hr = D3D11CreateDevice (
-		nullptr,
-		D3D_DRIVER_TYPE_HARDWARE,
-		NULL,
-		NULL,
-		NULL,
-		0,
-		D3D11_SDK_VERSION,
-		&x.Device,
-		NULL,
-		&x.DeviceContext
-	); HANDLE_HR(__LINE__);
-
-	CComPtr<ID3D11VertexShader> VS;
-	CComPtr<ID3D11PixelShader> PS;
-	CComPtr<ID3D11Buffer> TimeBuffer;
-
-	hr = x.Device->CreateVertexShader (
-		VertexShader,
-		sizeof(VertexShader),
-		nullptr,
-		&VS
-	); HANDLE_HR(__LINE__);
-
-	hr = x.Device->CreatePixelShader (
-		PixelShader,
-		sizeof(PixelShader),
-		nullptr,
-		&PS
-	); HANDLE_HR(__LINE__);
-
-	struct Info {
-		float time;
-		float pad[7];
-	} i;
-
-	D3D11_BUFFER_DESC cBufferDesc = { 0 };
-	cBufferDesc.ByteWidth = sizeof(Info);
-	cBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	cBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cBufferDesc.MiscFlags = NULL;
-	cBufferDesc.StructureByteStride = 0;
-
-	D3D11_SUBRESOURCE_DATA sub;
-	sub.pSysMem = &i;
-	sub.SysMemPitch = 0;
-	sub.SysMemSlicePitch = 0;
-
-	hr = x.Device->CreateBuffer (
-		&cBufferDesc,
-		&sub,
-		&TimeBuffer
-	); HANDLE_HR(__LINE__);
-
-	hr = DXWindowCreateWindow (
-		&Desc,
-		x.Device,
-		&x,
-		&Window
-	); HANDLE_HR(__LINE__);
-
-	LARGE_INTEGER liFrequency;
-	LARGE_INTEGER liCounter;
-	double CounterSeconds;
-	QueryPerformanceFrequency(&liFrequency);
-
-	while (x.run) {
-		Window->PumpMessages();
-
-		FLOAT color[] = { 1.0, 1.0, 1.0, 1.0 };
-
-		x.DeviceContext->ClearRenderTargetView(x.BackBufRTV, color);
-
-		QueryPerformanceCounter(&liCounter);
-		CounterSeconds = double(liCounter.QuadPart) / double(liFrequency.QuadPart);
-		i.time = float(CounterSeconds);
-		D3D11_MAPPED_SUBRESOURCE sub;
-		ZeroMemory(&sub, sizeof(sub));
-		x.DeviceContext->Map(TimeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub);
-		memcpy(sub.pData, &i, sizeof(Info));
-		x.DeviceContext->Unmap(TimeBuffer, 0);
-
-		ID3D11RenderTargetView* rtv = x.BackBufRTV;
-		ID3D11Buffer* timeBuffer = TimeBuffer;
-
-		x.DeviceContext->RSSetViewports(1, &x.viewport);
-		x.DeviceContext->VSSetShader(VS, nullptr, 0);
-		x.DeviceContext->PSSetShader(PS, nullptr, 0);
-		x.DeviceContext->PSSetConstantBuffers(0, 1, &timeBuffer);
-		x.DeviceContext->OMSetRenderTargets(1, &rtv, nullptr);
-		x.DeviceContext->IASetInputLayout(nullptr);
-		x.DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		x.DeviceContext->Draw(3, 0);
-
-		Window->Present(1, 0);
-	}
+	x.Run();
 
 	return 0;
 }
@@ -302,11 +310,33 @@ int main() {
 	class X : public CDXWindowCallback {
 	public:
 		X() : run(true) {
-			HRESULT hr = D3D12CreateDevice (
+			HRESULT hr = S_OK;
+
+#ifdef _DEBUG
+
+			CComPtr<ID3D12Debug> Debug;
+
+			hr = D3D12GetDebugInterface(
+				IID_PPV_ARGS(&Debug)
+			); HANDLE_HR(__LINE__);
+
+			Debug->EnableDebugLayer();
+
+#endif
+
+			hr = D3D12CreateDevice (
 				nullptr,
 				D3D_FEATURE_LEVEL_11_0,
 				IID_PPV_ARGS(&Device)
 			); HANDLE_HR(__LINE__);
+
+#ifdef _DEBUG
+
+			hr = Device->QueryInterface (
+				IID_PPV_ARGS(&InfoQueue)
+			); HANDLE_HR(__LINE__);
+
+#endif
 
 			D3D12_COMMAND_QUEUE_DESC CommandQueueDesc;
 			CommandQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -389,6 +419,25 @@ int main() {
 		}
 
 		VOID STDMETHODCALLTYPE OnObjectFailure(LPCWSTR File, UINT Line, HRESULT hr) final {
+
+#ifdef _DEBUG
+
+			UINT64 nMessages = InfoQueue->GetNumStoredMessages();
+			SIZE_T Size;
+
+			std::wcout << "OnObjectFailure():" << std::endl;
+			std::wcout << "\t" << "nMessages: " << nMessages << std::endl;
+
+			for (UINT64 i = 0; i < nMessages; i++) {
+				InfoQueue->GetMessageW(i, nullptr, &Size);
+				D3D12_MESSAGE* pMessage = (D3D12_MESSAGE*)malloc(Size);
+				InfoQueue->GetMessageW(i, pMessage, &Size);
+				std::wcout << pMessage->pDescription << std::endl;
+				free(pMessage);
+			}
+
+#endif
+
 			HandleHR(File, Line, hr);
 		}
 
@@ -475,6 +524,11 @@ int main() {
 			Viewport.Width = (FLOAT)(ResourceDesc.Width);
 			Viewport.Height = (FLOAT)(ResourceDesc.Height);
 
+			ScissorRect.left = 0;
+			ScissorRect.top = 0;
+			ScissorRect.right = (LONG)(ResourceDesc.Width);
+			ScissorRect.bottom = (LONG)(ResourceDesc.Height);
+
 			BufferIndex = 0;
 
 			// CONSOLE OUTPUT
@@ -512,6 +566,7 @@ int main() {
 				); HANDLE_HR(__LINE__);
 
 				CommandList->RSSetViewports(1, &Viewport);
+				CommandList->RSSetScissorRects(1, &ScissorRect);
 
 				Barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 				Barrier.Transition.pResource = RenderTargetResource[BufferIndex];
@@ -584,11 +639,18 @@ int main() {
 		CComPtr<ID3D12PipelineState> PipelineState;
 
 		D3D12_VIEWPORT Viewport;
+		D3D12_RECT ScissorRect;
 		D3D12_CPU_DESCRIPTOR_HANDLE RenderTargetViewHandle;
 		UINT RenderTargetBytes;
 		HANDLE FenceEvent;
 		UINT BufferIndex;
 		unsigned long long FenceValue;
+
+#ifdef _DEBUG
+
+		CComPtr<ID3D12InfoQueue> InfoQueue;
+
+#endif
 	} x;
 
 	x.Run();

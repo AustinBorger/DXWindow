@@ -54,8 +54,17 @@ HRESULT OutputEnum12::Initialize(CComPtr<IUnknown> DeviceUnk, CComPtr<IDXWindowC
 	//Get the adapter's luid
 	LUID AdapterLuid = Device->GetAdapterLuid();
 
+	UINT Flags = NULL;
+
+#ifdef _DEBUG
+
+	Flags = DXGI_CREATE_FACTORY_DEBUG;
+
+#endif
+
 	//Create a factory and find the adapter
-	hr = CreateDXGIFactory (
+	hr = CreateDXGIFactory2 (
+		Flags,
 		IID_PPV_ARGS(&Factory)
 	); CHECK_HR(__LINE__);
 
