@@ -25,6 +25,12 @@
 #include "SwapChainController12.h"
 #include "CDXWindow12.h"
 
+#ifdef _DEBUG
+
+#include <iostream>
+
+#endif
+
 #define FILENAME L"SwapChainController12.cpp"
 #define CHECK_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return; }
 #define RETURN_HR(Line) if (FAILED(hr)) { m_Callback->OnObjectFailure(FILENAME, Line, hr); return E_FAIL; }
@@ -130,6 +136,15 @@ HRESULT SwapChainController12::CreateSwapChain(CComPtr<IUnknown> DeviceUnk, UINT
 		DXGI_MWA_NO_WINDOW_CHANGES
 	); RETURN_HR(__LINE__);
 
+	//CONSOLE OUTPUT
+
+#ifdef _DEBUG
+
+	std::wcout << "SwapChainController12::CreateSwapChain():" << std::endl;
+	std::wcout << "\t" << "CurrentBackBufferIndex: " << m_SwapChain->GetCurrentBackBufferIndex() << std::endl;\
+
+#endif
+
 	return S_OK;
 }
 
@@ -179,6 +194,11 @@ VOID SwapChainController12::ToggleFullscreen() {
 		hr = m_SwapChain->SetFullscreenState (
 			TRUE,
 			obj
+		); CHECK_HR(__LINE__);
+
+		//One more for good luck (see Issue #1)
+		hr = m_SwapChain->ResizeTarget (
+			&mode
 		); CHECK_HR(__LINE__);
 
 		ResizeBuffers();

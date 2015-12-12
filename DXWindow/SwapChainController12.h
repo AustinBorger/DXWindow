@@ -59,7 +59,7 @@ public:
 private:
 	CDXWindow12& m_Window; //Reference to the window object
 	CComPtr<IDXWindowCallback> m_Callback; //Reference to the application-supplied callback
-	CComPtr<IDXGISwapChain> m_SwapChain; //Our swap chain
+	CComPtr<IDXGISwapChain3> m_SwapChain; //Our swap chain
 	HWND m_Handle; //The window handle (assigned by CDXWindow)
 	OutputEnum12& m_OutputEnum; //Reference to the output enumeration
 
