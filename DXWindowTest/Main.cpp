@@ -350,48 +350,6 @@ int main() {
 
 			FenceValue = 1;
 
-			/*CComPtr<ID3D12VertexShader> VS;
-			CComPtr<ID3D11PixelShader> PS;
-			CComPtr<ID3D11Buffer> TimeBuffer;
-
-			hr = Device->CreateVertexShader (
-				VertexShader,
-				sizeof(VertexShader),
-				nullptr,
-				&VS
-			); HANDLE_HR(__LINE__);
-
-			hr = Device->CreatePixelShader (
-				PixelShader,
-				sizeof(PixelShader),
-				nullptr,
-				&PS
-			); HANDLE_HR(__LINE__);
-
-			struct Info {
-				float time;
-				float pad[7];
-			} i;
-
-			D3D11_BUFFER_DESC cBufferDesc = { 0 };
-			cBufferDesc.ByteWidth = sizeof(Info);
-			cBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-			cBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-			cBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-			cBufferDesc.MiscFlags = NULL;
-			cBufferDesc.StructureByteStride = 0;
-
-			D3D11_SUBRESOURCE_DATA sub;
-			sub.pSysMem = &i;
-			sub.SysMemPitch = 0;
-			sub.SysMemSlicePitch = 0;
-
-			hr = Device->CreateBuffer (
-				&cBufferDesc,
-				&sub,
-				&TimeBuffer
-			); HANDLE_HR(__LINE__);*/
-
 			DXWINDOW_DESC Desc;
 
 			Desc.AllowToggle = TRUE;
@@ -454,6 +412,14 @@ int main() {
 		}
 
 		VOID STDMETHODCALLTYPE OnBackBufferRelease(IDXWindow* Window) final {
+			// CONSOLE OUTPUT
+
+#ifdef _DEBUG
+
+			std::wcout << "OnBackBufferRelease()" << std::endl;
+
+#endif
+
 			RenderTargetResource[0].Release();
 			RenderTargetResource[1].Release();
 			RenderTargetHeap.Release();
@@ -509,6 +475,16 @@ int main() {
 			Viewport.Height = (FLOAT)(ResourceDesc.Height);
 
 			BufferIndex = 0;
+
+			// CONSOLE OUTPUT
+
+#ifdef _DEBUG
+
+			std::wcout << "OnBackBufferCreate():" << std::endl;
+			std::wcout << "\t" << "Back Buffer Width: " << Viewport.Width << std::endl;
+			std::wcout << "\t" << "Back Buffer Height: " << Viewport.Height << std::endl;
+
+#endif
 		}
 
 		VOID Run() {
@@ -544,20 +520,20 @@ int main() {
 				Barrier.Aliasing.pResourceAfter = nullptr;
 				Barrier.Aliasing.pResourceBefore = nullptr;
 
-				//CommandList->ResourceBarrier(1, &Barrier);
+				CommandList->ResourceBarrier(1, &Barrier);
 
 				RenderTargetViewPtr.ptr = RenderTargetViewHandle.ptr + BufferIndex * RenderTargetBytes;
 
-				//CommandList->OMSetRenderTargets(1, &RenderTargetViewPtr, FALSE, nullptr);
+				CommandList->OMSetRenderTargets(1, &RenderTargetViewPtr, FALSE, nullptr);
 
 				FLOAT color[] = { 1.0, 1.0, 1.0, 1.0 };
 
-				//CommandList->ClearRenderTargetView(RenderTargetViewHandle, color, 0, nullptr);
+				CommandList->ClearRenderTargetView(RenderTargetViewHandle, color, 0, nullptr);
 
 				Barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
 				Barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
 
-				//CommandList->ResourceBarrier(1, &Barrier);
+				CommandList->ResourceBarrier(1, &Barrier);
 
 				hr = CommandList->Close(); HANDLE_HR(__LINE__);
 
@@ -586,31 +562,6 @@ int main() {
 				}
 
 				BufferIndex = 1 - BufferIndex;
-
-				/*FLOAT color[] = { 1.0, 1.0, 1.0, 1.0 };
-
-				x.DeviceContext->ClearRenderTargetView(x.BackBufRTV, color);
-
-				QueryPerformanceCounter(&liCounter);
-				CounterSeconds = double(liCounter.QuadPart) / double(liFrequency.QuadPart);
-				i.time = float(CounterSeconds);
-				D3D11_MAPPED_SUBRESOURCE sub;
-				ZeroMemory(&sub, sizeof(sub));
-				x.DeviceContext->Map(TimeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &sub);
-				memcpy(sub.pData, &i, sizeof(Info));
-				x.DeviceContext->Unmap(TimeBuffer, 0);
-
-				ID3D11RenderTargetView* rtv = x.BackBufRTV;
-				ID3D11Buffer* timeBuffer = TimeBuffer;
-
-				x.DeviceContext->RSSetViewports(1, &x.viewport);
-				x.DeviceContext->VSSetShader(VS, nullptr, 0);
-				x.DeviceContext->PSSetShader(PS, nullptr, 0);
-				x.DeviceContext->PSSetConstantBuffers(0, 1, &timeBuffer);
-				x.DeviceContext->OMSetRenderTargets(1, &rtv, nullptr);
-				x.DeviceContext->IASetInputLayout(nullptr);
-				x.DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-				x.DeviceContext->Draw(3, 0);*/
 			}
 		}
 
