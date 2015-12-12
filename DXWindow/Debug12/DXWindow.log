@@ -1,16 +1,1 @@
-﻿  WindowMessageDispatcher12.cpp
-  WindowMessageDispatcher.cpp
-  SwapChainController12.cpp
-  SwapChainController.cpp
-  OutputEnum12.cpp
-  Output.cpp
-  GamepadMessageDispatcher.cpp
-  DXWindow.cpp
-  OutputEnum.cpp
-  Output12.cpp
-  GamepadMessageDispatcher12.cpp
-  CDXWindow12.cpp
-  CDXWindow.cpp
-  Generating Code...
-     Creating library C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\DXWindow.lib and object C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\DXWindow.exp
-  DXWindow.vcxproj -> C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\DXWindow.dll
+﻿  DXWindow.vcxproj -> C:\Users\Austin\Documents\COM Objects\DXWindow\Debug12\DXWindow.dll
